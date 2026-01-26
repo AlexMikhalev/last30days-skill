@@ -1,7 +1,8 @@
 import "./index.css";
 import { Composition } from "remotion";
 import { ChatDemo } from "./ChatDemo";
-import { MacTerminal } from "./MacTerminal";
+import { Master } from "./Master";
+import { LogoCombo } from "./LogoCombo";
 import messages from "./messages.json";
 
 export const RemotionRoot: React.FC = () => {
@@ -17,13 +18,24 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{ messages }}
       />
 
+      {/* Main promo composition (8 seconds) */}
       <Composition
-        id="TerraphimSkillsInstall"
-        component={MacTerminal}
-        durationInFrames={300}
+        id="TerraphimSkillsAnnouncement"
+        component={Master}
+        durationInFrames={240}
         fps={30}
-        width={1280}
-        height={1000}
+        width={1080}
+        height={700}
+      />
+
+      {/* Exposed for tweaking */}
+      <Composition
+        id="LogoCombo"
+        component={LogoCombo}
+        durationInFrames={240}
+        fps={30}
+        width={1080}
+        height={400}
       />
     </>
   );
