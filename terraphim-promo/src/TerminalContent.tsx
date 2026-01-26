@@ -1,7 +1,7 @@
 import { useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { Cursor } from "./Cursor";
 
-const COMMAND = "npx skills install terraphim/terraphim-skills";
+export const COMMAND = "npx skills install terraphim/terraphim-skills";
 
 // Taken from actually running the command (ANSI stripped)
 const SKILLS_LOGO = `███████╗██╗  ██╗██╗██╗     ██╗     ███████╗
@@ -11,7 +11,7 @@ const SKILLS_LOGO = `███████╗██╗  ██╗██╗██
 ███████║██║  ██╗██║███████╗███████╗███████║
 ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚══════╝`;
 
-const OUTPUT_LINES = [
+export const OUTPUT_LINES = [
   "",
   "┌   skills",
   "│",
@@ -28,6 +28,19 @@ const OUTPUT_LINES = [
   "│",
   "└",
 ];
+
+// Keep Master + TerminalContent aligned.
+export const getOutputDoneFrame = (fps: number) => {
+  const charsPerSecond = 18;
+  const framesPerChar = fps / charsPerSecond;
+  const typingEndFrame = COMMAND.length * framesPerChar;
+  const outputStartFrame = typingEndFrame + fps * 0.5;
+  const framesPerLine = fps * 0.05;
+  const linesStartFrame = outputStartFrame + framesPerLine;
+  const linesEndFrame = linesStartFrame + OUTPUT_LINES.length * framesPerLine;
+  // plus a tiny buffer
+  return Math.ceil(linesEndFrame + fps * 0.25);
+};
 
 export const TerminalContent: React.FC = () => {
   const frame = useCurrentFrame();

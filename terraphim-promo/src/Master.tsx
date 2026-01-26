@@ -8,14 +8,13 @@ import {
 } from "remotion";
 import { MacTerminal } from "./MacTerminal";
 import { LogoCombo } from "./LogoCombo";
-
-// Roughly when the terminal output has finished appearing.
-// (We keep it simple + deterministic like the reference prompt.)
-const OUTPUT_DONE_FRAME = 120;
+import { getOutputDoneFrame } from "./TerminalContent";
 
 export const Master: React.FC = () => {
   const frame = useCurrentFrame();
   const { durationInFrames, fps } = useVideoConfig();
+
+  const outputDoneFrame = Math.min(durationInFrames - 1, getOutputDoneFrame(fps));
 
   // Fast slide-in from bottom, no bounce
   const slideIn = spring({
@@ -35,9 +34,9 @@ export const Master: React.FC = () => {
   // Gentle zoom
   const scale = interpolate(frame, [0, durationInFrames], [0.9, 1]);
 
-  // After output is "done", flip towards camera by rotating around bottom edge
+  // After output is done, flip towards camera by rotating around bottom edge
   const flipOut = spring({
-    frame: frame - OUTPUT_DONE_FRAME,
+    frame: frame - outputDoneFrame,
     fps,
     config: {
       damping: 200,
@@ -45,17 +44,14 @@ export const Master: React.FC = () => {
     },
   });
 
-  const flipRotateX = frame >= OUTPUT_DONE_FRAME
+  const flipRotateX = frame >= outputDoneFrame
     ? interpolate(flipOut, [0, 1], [0, -70])
     : 0;
 
   return (
     <AbsoluteFill className="bg-[#f8fafc]" style={{ perspective: 1000 }}>
       {/* LogoCombo behind the terminal */}
-      <Sequence
-        from={OUTPUT_DONE_FRAME}
-        durationInFrames={durationInFrames - OUTPUT_DONE_FRAME}
-      >
+      <Sequence from={outputDoneFrame} durationInFrames={durationInFrames - outputDoneFrame}>
         <LogoCombo />
       </Sequence>
 
