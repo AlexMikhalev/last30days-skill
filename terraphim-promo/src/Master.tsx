@@ -48,8 +48,27 @@ export const Master: React.FC = () => {
     ? interpolate(flipOut, [0, 1], [0, -70])
     : 0;
 
+  // The 3D transform can leave tiny raster artifacts at the edges.
+  // Fade the terminal out shortly after the flip starts, and stop rendering it afterwards.
+  const fadeStart = outputDoneFrame + fps * 0.35;
+  const fadeEnd = outputDoneFrame + fps * 0.55;
+  const terminalOpacity = frame < fadeStart
+    ? 1
+    : interpolate(frame, [fadeStart, fadeEnd], [1, 0], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      });
+
+  const terminalSequenceDuration = Math.min(
+    durationInFrames,
+    Math.ceil(fadeEnd + fps * 0.05)
+  );
+
   return (
-    <AbsoluteFill className="bg-[#f8fafc]" style={{ perspective: 1000 }}>
+    <AbsoluteFill
+      className="bg-[#f8fafc]"
+      style={{ perspective: 1000, overflow: "hidden" }}
+    >
       {/* LogoCombo behind the terminal */}
       <Sequence from={outputDoneFrame} durationInFrames={durationInFrames - outputDoneFrame}>
         <LogoCombo />
@@ -57,14 +76,28 @@ export const Master: React.FC = () => {
 
       {/* Terminal on top */}
       <Sequence
-        durationInFrames={durationInFrames}
+        durationInFrames={terminalSequenceDuration}
         style={{
           transform: `translateY(${translateY}px) rotateX(${flipRotateX}deg) rotateY(${rotateY}deg) scale(${scale})`,
           transformOrigin: "50% 100%",
+          opacity: terminalOpacity,
         }}
       >
         <MacTerminal />
       </Sequence>
+
+      {/* Safety matte to hide any bottom-edge raster artifacts from 3D transforms */}
+      <AbsoluteFill
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 320,
+          backgroundColor: "#f8fafc",
+          zIndex: 9999,
+        }}
+      />
     </AbsoluteFill>
   );
 };
