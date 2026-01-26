@@ -1,0 +1,8 @@
+[
+  { "text": "What's the battery level?", "isUser": true },
+  { "text": "🔋 Battery: 67% (175 mi)\n⚡ Charging: Disconnected\n🌡️ Inside: 44°F", "isUser": false },
+  { "text": "Unlock the car", "isUser": true },
+  { "text": "🔓 Car unlocked!", "isUser": false, "emoji": "🚗" },
+  { "text": "Turn on defrost", "isUser": true },
+  { "text": "🔥 Max defrost ON", "isUser": false }
+]
