@@ -97,3 +97,27 @@ export GOG_KEYRING_PASSWORD='clawdbot'
 
 gog calendar events primary --from 2026-01-24T00:00:00Z --to 2026-01-31T00:00:00Z --account you@domain.com
 ```
+
+---
+
+## Skill installed: Clawdbot Self-Security Audit (read-only)
+
+Repo: https://github.com/TheSethRose/Clawdbot-Security-Check
+
+Installed to:
+- `/home/alex/clawd/skills/clawdbot-security-check`
+
+### What it is
+A **knowledge-based** skill that teaches Clawdbot how to audit its own security posture (gateway exposure, DM/group policies, credential storage, browser control exposure, etc.).
+
+**Important:** The skill is designed to be **read-only** by default and should not silently apply fixes.
+
+### How to use it (chat)
+Ask Clawdbot things like:
+- “run security check”
+- “audit clawdbot security hardening”
+- “check gateway exposure and auth token setup”
+
+### Notes / gotchas
+- The SKILL.md mentions commands like `clawdbot security audit` / `--deep` / `--fix`. Treat these as *suggested interfaces*; if the CLI subcommand doesn’t exist in this build, use the skill’s checklist and run the underlying inspection commands (e.g., checking `~/.clawdbot/clawdbot.json`, file permissions, bind addresses) rather than assuming a built-in command.
+- If implementing an automated audit command later, keep it **read-only** by default, and require explicit user confirmation before any config changes.
