@@ -12,9 +12,11 @@
   <!-- Nice defaults -->
   <style>
     :root { --r-main-font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    /* Reduce overall sizing (Reveal defaults can be huge on desktop) */
+    .reveal { font-size: 28px; }
     .reveal .slides { text-align: left; }
     .reveal h1, .reveal h2, .reveal h3 { letter-spacing: -0.02em; }
-    .reveal .kicker { opacity: .85; font-size: .95em; }
+    .reveal .kicker { opacity: .85; font-size: .85em; }
     .reveal .pill { display:inline-block; padding:.25em .55em; border-radius:999px; font-size:.65em; border:1px solid rgba(255,255,255,.25); }
     .reveal .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     .reveal .grid3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
@@ -95,12 +97,12 @@
       <!-- STORYBOARD -->
       <section>
         <h2>5D Storyboard (presentation view)</h2>
-        <p class="muted small">Keep arrows short. Keep detail in the artefact stack + speaker notes.</p>
+        <p class="muted small">Keep arrows short. Keep detail in the artifact stack + speaker notes.</p>
         <pre class="mermaid">
 flowchart LR
   %% lanes (implicit): Client | AM | Delivery
   subgraph DEFINE[DEFINE — intent + shared reality]
-    D1[Kickoff + discovery]\nD2[PVVH + Personas + Domain + Scenarios]\nD3[[Gate 1: Value & Intent]]
+    D1[Kickoff + discovery]\nD2[PVVH + Personas + Scenarios + Domain]\nD3[[Gate 1: Value & Intent]]
   end
 
   subgraph DESIGN[DESIGN — bounded design + risk posture]
@@ -336,6 +338,10 @@ flowchart LR
       controls: true,
       history: true,
       transition: 'fade',
+      /* Make layout more deck-like and reduce perceived font size */
+      width: 1280,
+      height: 720,
+      margin: 0.06,
       plugins: [ RevealNotes ]
     });
 
