@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Debt Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; background:#0b0f14; color:#e8eef6; }
+    h1,h2 { margin: 0 0 10px 0; }
+    .muted { color: rgba(232,238,246,.75); }
+    .grid { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin: 14px 0 18px; }
+    .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 12px 14px; }
+    .big { font-size: 22px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid rgba(255,255,255,.12); padding: 8px 10px; font-size: 14px; text-align:left; vertical-align: top; }
+    th { color: rgba(232,238,246,.8); font-weight: 600; }
+    .pill { display:inline-block; padding: 2px 8px; border-radius:999px; font-size: 12px; border:1px solid rgba(255,255,255,.18); }
+    .yes { background: rgba(120,255,170,.12); border-color: rgba(120,255,170,.35); }
+    .no { background: rgba(255,190,120,.10); border-color: rgba(255,190,120,.35); }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Debt Dashboard</h1>
+  <div class="muted">Source: Financial statement PDF (27 Jan 2026). Edit <code>debts.csv</code> to update.</div>
+
+  <div class="grid">
+    <div class="card"><div class="muted">Total owed</div><div class="big">£27,983.91</div></div>
+    <div class="card"><div class="muted">Priority owed</div><div class="big">£2,842.30</div></div>
+    <div class="card"><div class="muted">Non-priority owed</div><div class="big">£25,141.61</div></div>
+    <div class="card"><div class="muted">Current monthly offers</div><div class="big">£861.05</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;">
+    <h2>By debt (owed)</h2>
+    <div id="pie" style="height:360px;"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;">
+    <h2>Monthly offers</h2>
+    <div id="bar" style="height:420px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Debt list</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Debt</th>
+          <th>Priority</th>
+          <th>Owed</th>
+          <th>Offer / month</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Mortgage</td><td><span class='pill yes'>priority</span></td><td>£2,842.30</td><td>£326.00</td><td class='muted'>From financial statement PDF (27 Jan 2026)</td></tr>
+<tr><td>Nationwide Building Society</td><td><span class='pill no'>non-priority</span></td><td>£6,214.61</td><td>£167.05</td><td class='muted'>From financial statement PDF (27 Jan 2026)</td></tr>
+<tr><td>Barclays Bank Plc</td><td><span class='pill no'>non-priority</span></td><td>£14,208.00</td><td>£368.00</td><td class='muted'>From financial statement PDF (27 Jan 2026)</td></tr>
+<tr><td>Monzo (debt 1)</td><td><span class='pill no'>non-priority</span></td><td>£3,984.00</td><td>£0.00</td><td class='muted'>From financial statement PDF (27 Jan 2026)</td></tr>
+<tr><td>Monzo (debt 2)</td><td><span class='pill no'>non-priority</span></td><td>£735.00</td><td>£0.00</td><td class='muted'>From financial statement PDF (27 Jan 2026)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+<script>
+  const labels = ["Mortgage", "Nationwide Building Society", "Barclays Bank Plc", "Monzo (debt 1)", "Monzo (debt 2)"];
+  const owed = [2842.3, 6214.61, 14208.0, 3984.0, 735.0];
+  const offers = [326.0, 167.05, 368.0, 0.0, 0.0];
+
+  Plotly.newPlot('pie', [{
+    type: 'pie',
+    labels, values: owed,
+    textinfo: 'label+percent',
+    insidetextorientation: 'radial'
+  }], {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#e8eef6'},
+    margin: {t: 10, r: 10, b: 10, l: 10}
+  }, {displayModeBar: false, responsive: true});
+
+  Plotly.newPlot('bar', [{
+    type: 'bar',
+    x: labels,
+    y: offers,
+    name: 'Monthly offer',
+    marker: {color: 'rgba(135,183,255,.9)'}
+  }], {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#e8eef6'},
+    yaxis: {title: '£ per month'},
+    xaxis: {tickangle: -20},
+    margin: {t: 10, r: 10, b: 90, l: 60}
+  }, {displayModeBar: false, responsive: true});
+</script>
+</body>
+</html>

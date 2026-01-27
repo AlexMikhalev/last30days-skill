@@ -1,0 +1,6 @@
+name,type,priority,owed_gbp,offer_monthly_gbp,notes
+Mortgage,priority,yes,2842.30,326.00,From financial statement PDF (27 Jan 2026)
+Nationwide Building Society,non-priority,no,6214.61,167.05,From financial statement PDF (27 Jan 2026)
+Barclays Bank Plc,non-priority,no,14208.00,368.00,From financial statement PDF (27 Jan 2026)
+Monzo (debt 1),non-priority,no,3984.00,0.00,From financial statement PDF (27 Jan 2026)
+Monzo (debt 2),non-priority,no,735.00,0.00,From financial statement PDF (27 Jan 2026)
