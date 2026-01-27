@@ -1,0 +1,4 @@
+# Do not commit meeting transcripts
+**/*.eml
+**/*.meta.json
+.state.json
