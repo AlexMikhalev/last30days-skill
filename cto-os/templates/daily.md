@@ -17,8 +17,11 @@
 ### Decisions needed (if any)
 - 
 
-## CTO-mode (tech)
+## CTO-mode (delivery / engineering)
 ### Risks / fires
+- 
+
+### Delivery (what will ship)
 - 
 
 ### Leverage items (highest ROI technical actions)
@@ -26,6 +29,19 @@
 
 ### Delegation / asks
 - 
+
+## Head of AI / Research
+### Terraphim AI deep work (time-box)
+- Block(s) reserved:
+- One concrete research outcome today:
+
+### Research intake (signal > noise)
+- 1 paper/topic to review:
+- 1 note to capture:
+
+### Publish / market
+- What will I share today/this week?
+- Draft title + channel(s):
 
 ## People
 - 1:1s / feedback to deliver:
