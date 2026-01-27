@@ -100,6 +100,16 @@ gog calendar events primary --from 2026-01-24T00:00:00Z --to 2026-01-31T00:00:00
 
 ---
 
+## ODILO contacts (email)
+
+Useful for drafting / replying fast:
+- Jorge Alonso (ODILO): `jalonso@odilo.us`
+- Rafael Luengo Ruiz (ODILO): `rluengo@odilo.us`
+
+(Found via `gog gmail` search in historical ODILO threads.)
+
+---
+
 ## Skill installed: Clawdbot Self-Security Audit (read-only)
 
 Repo: https://github.com/TheSethRose/Clawdbot-Security-Check
