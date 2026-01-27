@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zestic 5D (ZDP) — Delivery & Governance Storyboard</title>
+
+  <!-- Reveal.js (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" id="theme" />
+
+  <!-- Nice defaults -->
+  <style>
+    :root { --r-main-font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .reveal .slides { text-align: left; }
+    .reveal h1, .reveal h2, .reveal h3 { letter-spacing: -0.02em; }
+    .reveal .kicker { opacity: .85; font-size: .95em; }
+    .reveal .pill { display:inline-block; padding:.25em .55em; border-radius:999px; font-size:.65em; border:1px solid rgba(255,255,255,.25); }
+    .reveal .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .reveal .grid3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .reveal .card { padding: 14px 14px; border:1px solid rgba(255,255,255,.16); border-radius: 12px; background: rgba(255,255,255,.04); }
+    .reveal .muted { opacity:.8; }
+    .reveal .small { font-size: .75em; }
+    .reveal .tiny { font-size: .62em; }
+    .reveal .callout { border-left: 4px solid rgba(100,200,255,.8); padding-left: 12px; }
+    .reveal code { background: rgba(255,255,255,.07); padding: .08em .24em; border-radius: 6px; }
+
+    /* Phase colors */
+    .phase-define { border-color: rgba(200,200,200,.35); }
+    .phase-design { border-color: rgba(120,180,255,.45); }
+    .phase-develop { border-color: rgba(190,130,255,.45); }
+    .phase-deploy { border-color: rgba(120,255,170,.45); }
+    .phase-drive { border-color: rgba(255,190,120,.45); }
+
+    /* Mermaid sizing */
+    .reveal pre.mermaid { background: transparent; }
+    .reveal .mermaid { font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- TITLE -->
+      <section>
+        <div class="kicker">Zestic AI 5D / ZDP • Canonical delivery & governance</div>
+        <h1>From Intent → Impact<br/><span class="muted">without surprises</span></h1>
+        <p class="muted">A presentation-optimized storyboard of the 5D phases, the client gates, and the canonical documents.</p>
+        <p class="small"><span class="pill">Use ←/→</span> <span class="pill">Press O for overview</span> <span class="pill">Press S for speaker view</span></p>
+      </section>
+
+      <!-- WHY -->
+      <section>
+        <h2>What this operating model protects</h2>
+        <div class="grid3">
+          <div class="card">
+            <h3>Clients</h3>
+            <ul>
+              <li>Never surprised</li>
+              <li>Never confused</li>
+              <li>Only asked to approve what matters</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Zestic AI</h3>
+            <ul>
+              <li>Clear mandate</li>
+              <li>Audit trail for value / trust / risk</li>
+              <li>Reduced rework & reputational exposure</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Delivery teams</h3>
+            <ul>
+              <li>Fewer ambiguous changes</li>
+              <li>Faster decisions</li>
+              <li>Stable acceptance criteria</li>
+            </ul>
+          </div>
+        </div>
+        <aside class="notes">
+          Anchor this slide with the AM mission statement: never surprised, never confused, never asked to approve the wrong thing.
+        </aside>
+      </section>
+
+      <!-- THE RULE -->
+      <section>
+        <h2>The one rule</h2>
+        <div class="card callout">
+          <h3>If it affects <b>value</b>, <b>trust</b>, or <b>risk</b> — it must pass a Client Gate.</h3>
+          <p class="muted">Velocity comes from disciplined approvals, not from skipping decisions.</p>
+        </div>
+      </section>
+
+      <!-- STORYBOARD -->
+      <section>
+        <h2>5D Storyboard (presentation view)</h2>
+        <p class="muted small">Keep arrows short. Keep detail in the artefact stack + speaker notes.</p>
+        <pre class="mermaid">
+flowchart LR
+  %% lanes (implicit): Client | AM | Delivery
+  subgraph DEFINE[DEFINE — intent + shared reality]
+    D1[Kickoff + discovery]\nD2[PVVH + Personas + Domain + Scenarios]\nD3[[Gate 1: Value & Intent]]
+  end
+
+  subgraph DESIGN[DESIGN — bounded design + risk posture]
+    S1[Design kickoff]\nS2[Design brief + UX contracts + risk register]\nS3[[Gate 2: Reality Check]]\nS4[[Gate 3: Trust & Safety]]
+  end
+
+  subgraph DEVELOP[DEVELOP — build to testable acceptance]
+    V1[Sprint build]\nV2[Prompt/Agent + Data/Model + Tests]\nV3[[Gate 4: Definition of Done]]\nV4[Evidence pack]
+  end
+
+  subgraph DEPLOY[DEPLOY — release safely]
+    P1[Runbook]\nP2[Deploy + monitoring]\nP3[Go-live comms]
+  end
+
+  subgraph DRIVE[DRIVE — learn + decide]
+    R1[Performance + drift report]\nR2[[Gate 5: Learn & Decide]]\nR3[Iteration roadmap]
+  end
+
+  DEFINE --> DESIGN --> DEVELOP --> DEPLOY --> DRIVE
+
+  class DEFINE phase-define;
+  class DESIGN phase-design;
+  class DEVELOP phase-develop;
+  class DEPLOY phase-deploy;
+  class DRIVE phase-drive;
+        </pre>
+        <aside class="notes">
+          Explain: we intentionally compress each phase to a few boxes; artifacts are evidence; gates are decisions.
+        </aside>
+      </section>
+
+      <!-- GATES -->
+      <section>
+        <h2>Client Gates (decision checkpoints)</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>Gate 1 — Value & Intent</h3>
+            <ul>
+              <li>Approve: problem, users, metrics, ethical boundaries</li>
+              <li>Outcome: “right problem, right way”</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Gate 2 — Reality Check</h3>
+            <ul>
+              <li>Confirm: terminology, scenarios reflect reality</li>
+              <li>Outcome: “this matches how we work”</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Gate 3 — Trust & Safety</h3>
+            <ul>
+              <li>Approve: AI boundaries, overrides, mitigations</li>
+              <li>Outcome: “comfortable letting AI interact”</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Gate 4 — Definition of Done</h3>
+            <ul>
+              <li>Approve: acceptance criteria + key test scenarios</li>
+              <li>Outcome: “we agree what success looks like”</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" style="margin-top: 14px;">
+          <h3>Gate 5 — Learn & Decide</h3>
+          <ul>
+            <li>Review: outcomes, drift signals</li>
+            <li>Decide: improve / scale / stop</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- DOCUMENT MAP -->
+      <section>
+        <h2>Canonical document map (the evidence)</h2>
+        <p class="muted">Documents are written for humans <i>and</i> LLMs. Gates point to the minimal set required for a decision.</p>
+        <div class="grid2">
+          <div class="card phase-define">
+            <h3>DEFINE</h3>
+            <ol>
+              <li>Product Vision & Value Hypothesis (PVVH)</li>
+              <li>Personas & Jobs-to-be-Done</li>
+              <li>End-to-End Business Scenarios</li>
+              <li>Domain Model (Atomic/Ontology)</li>
+            </ol>
+          </div>
+          <div class="card phase-design">
+            <h3>DESIGN</h3>
+            <ol start="5">
+              <li>AI & System Design Brief</li>
+              <li>Responsible AI & Risk Register</li>
+              <li>UX Flows & Interaction Contracts</li>
+            </ol>
+          </div>
+          <div class="card phase-develop">
+            <h3>DEVELOP</h3>
+            <ol start="8">
+              <li>Prompt & Agent Specification</li>
+              <li>Data & Model Specification</li>
+              <li>Acceptance Criteria & Test Scenarios</li>
+            </ol>
+          </div>
+          <div class="card phase-deploy">
+            <h3>DEPLOY</h3>
+            <ol start="11">
+              <li>Release & Ops Runbook</li>
+            </ol>
+          </div>
+        </div>
+        <div class="card phase-drive" style="margin-top: 14px;">
+          <h3>DRIVE</h3>
+          <ol start="12">
+            <li>Performance, Drift & Learning Report (Living)</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- AM PLAYBOOK -->
+      <section>
+        <h2>Account Manager playbook (AI-first)</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>AM core mission</h3>
+            <p><b>Never surprised</b> · <b>Never confused</b> · <b>Never asked to approve the wrong thing</b></p>
+            <p class="muted">The AM owns <b>clarity</b>, not delivery.</p>
+          </div>
+          <div class="card">
+            <h3>What the AM owns</h3>
+            <ul>
+              <li>Gate scheduling + sign-off capture</li>
+              <li>Decision framing: what changed / why / decision?</li>
+              <li>Risk translation: AI → business impact</li>
+              <li>Cadence: weekly intent check + decision-only gates</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- APPROVAL MATRIX -->
+      <section>
+        <h2>Approval matrix (client-facing)</h2>
+        <div class="card">
+          <ul>
+            <li><b>Gate approvals focus on:</b> intent, value, trust, risk, outcomes</li>
+            <li><b>Clients are not asked to approve:</b> code, infra, prompts, model configs</li>
+          </ul>
+        </div>
+        <div class="grid3" style="margin-top: 14px;">
+          <div class="card"><b>Formal approvals</b><br/>Gate 1, Gate 3, Gate 4</div>
+          <div class="card"><b>Confirm accuracy</b><br/>Gate 2 (SMEs)</div>
+          <div class="card"><b>Agree actions</b><br/>Gate 5</div>
+        </div>
+      </section>
+
+      <!-- RACI QUICK -->
+      <section>
+        <h2>RACI: one non-negotiable</h2>
+        <div class="card callout">
+          <h3>Exactly one <b>Accountable (A)</b> per decision.</h3>
+          <p class="muted">Responsibility can be shared. Accountability cannot.</p>
+        </div>
+      </section>
+
+      <!-- RISK REGISTER PRINCIPLES -->
+      <section>
+        <h2>Risk register (curated, not exhaustive)</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>What goes in</h3>
+            <ul>
+              <li>Material impact</li>
+              <li>Plausible pathway</li>
+              <li>Decision-relevant</li>
+              <li>Stakeholder-sensitive</li>
+              <li>Non-trivial mitigation</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>What stays out</h3>
+            <ul>
+              <li>Duplicates / trivial variants</li>
+              <li>Purely theoretical risks</li>
+              <li>Risks already fully controlled</li>
+              <li>Anything that wouldn’t change a decision</li>
+            </ul>
+          </div>
+        </div>
+        <p class="small muted" style="margin-top: 10px;">Rule of thumb: <b>8–15</b> risks for most engagements; rarely more than 20.</p>
+      </section>
+
+      <!-- DECISION LOG -->
+      <section>
+        <h2>Decision log: the single source of truth</h2>
+        <div class="card">
+          <p><b>If a decision is not in the log, it is not formally agreed.</b></p>
+          <ul>
+            <li>Captures decisions, not discussions</li>
+            <li>Updated after each gate</li>
+            <li>Changes require a new entry (no silent edits)</li>
+          </ul>
+        </div>
+        <aside class="notes">
+          Reinforce: this is the audit trail that prevents re-litigation.
+        </aside>
+      </section>
+
+      <!-- CLOSE -->
+      <section>
+        <h2>Close: the mental model</h2>
+        <div class="grid3">
+          <div class="card"><b>Documents</b><br/><span class="muted">Evidence</span></div>
+          <div class="card"><b>Client Gates</b><br/><span class="muted">Decisions</span></div>
+          <div class="card"><b>AM</b><br/><span class="muted">Guardian of trust</span></div>
+        </div>
+        <p class="muted" style="margin-top: 14px;">This is how AI delivery scales: disciplined decisions + clear boundaries + continuous learning.</p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+
+  <!-- Mermaid -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: true,
+      progress: true,
+      controls: true,
+      history: true,
+      transition: 'fade',
+      plugins: [ RevealNotes ]
+    });
+
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      flowchart: { curve: 'basis' }
+    });
+  </script>
+</body>
+</html>
