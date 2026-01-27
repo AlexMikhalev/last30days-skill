@@ -1,0 +1,23 @@
+[project]
+name = "polymarket-outliers"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "AlexMikhalev", email = "alex@metacortex.engineer" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27.0",
+    "pydantic>=2.6.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "scipy>=1.12.0",
+]
+
+[project.scripts]
+polymarket-outliers = "polymarket_outliers:main"
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
