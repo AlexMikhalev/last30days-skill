@@ -9,6 +9,9 @@ OUTDIR="$WORKDIR/data/twitter"
 STATE="$OUTDIR/state.json"
 TZ="Europe/London"
 
+# Ensure Homebrew tools (e.g., newer cmake) are available for gno/node-llama-cpp builds.
+export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+
 mkdir -p "$OUTDIR"
 
 # State
@@ -35,8 +38,8 @@ filter_to_jsonl() {
   local tmp_json="$1"; shift
   local out_jsonl="$1"; shift
 
-  python3 - <<'PY'
-import json,sys,email.utils,datetime
+  python3 - "$kind" "$tmp_json" "$out_jsonl" "$last_run_epoch" <<'PY'
+import json,sys,email.utils
 kind=sys.argv[1]
 tmp_json=sys.argv[2]
 out_jsonl=sys.argv[3]
@@ -75,24 +78,30 @@ with open(out_jsonl,'a') as out:
 
 print(f"{kind}: appended {len(new)}")
 PY
-  "$kind" "$tmp_json" "$out_jsonl" "$last_run_epoch"
 }
 
 run_bird() {
   local cmd="$1"; shift
-  if command -v bird >/dev/null 2>&1; then
-    eval "$cmd"
-  else
+  if ! command -v bird >/dev/null 2>&1; then
     echo "bird not found" >&2
     return 1
   fi
+
+  # Prefer explicit cookie tokens (avoids Linux keyring/secret-tool issues when extracting Chrome cookies).
+  # NOTE: creds.sh should be chmod 600 and never committed.
+  if [[ -f "$HOME/.config/bird/creds.sh" ]]; then
+    # shellcheck disable=SC1091
+    source "$HOME/.config/bird/creds.sh"
+  fi
+
+  eval "$cmd"
 }
 
 stamp=$(TZ="$TZ" date +%F)
 
 # 1) Bookmarks
 TMP1=$(mktemp)
-if run_bird "bird bookmarks --max-pages 10 --json > '$TMP1'"; then
+if run_bird "bird bookmarks --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --all --max-pages 10 --json > '$TMP1'"; then
   filter_to_jsonl "bookmarks" "$TMP1" "$OUTDIR/bookmarks.jsonl"
 else
   echo "bookmarks: bird command failed" >&2
@@ -101,7 +110,7 @@ rm -f "$TMP1"
 
 # 2) Likes (best-effort; some installs may not have this subcommand)
 TMP2=$(mktemp)
-if run_bird "bird likes --max-pages 10 --json > '$TMP2'"; then
+if run_bird "bird likes --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --all --max-pages 10 --json > '$TMP2'"; then
   filter_to_jsonl "likes" "$TMP2" "$OUTDIR/likes.jsonl"
 else
   echo "likes: bird command failed (ok to ignore)" >&2
