@@ -422,6 +422,35 @@ def main():
         progress,
     )
 
+    # Optional web research via Exa (if configured). This replaces Claude WebSearch.
+    web_items = []
+    web_error = None
+    if web_needed and not args.mock and config.get("EXA_API_KEY"):
+        try:
+            exa_results = websearch.exa_search(
+                config["EXA_API_KEY"],
+                args.topic,
+                from_date=from_date,
+                to_date=to_date,
+                num_results=20 if depth == "default" else (12 if depth == "quick" else 35),
+                search_type="auto" if depth != "deep" else "deep",
+                text_max_characters=2000,
+            )
+            parsed_web = websearch.parse_websearch_results(
+                exa_results,
+                args.topic,
+                from_date=from_date,
+                to_date=to_date,
+            )
+            web_items = websearch.normalize_websearch_items(parsed_web, from_date, to_date)
+            web_items = normalize.filter_by_date_range(web_items, from_date, to_date)
+            web_items = score.score_websearch_items(web_items)
+            web_items = score.sort_items(web_items)
+            web_items = websearch.dedupe_websearch(web_items)
+            web_needed = False
+        except Exception as e:
+            web_error = f"{type(e).__name__}: {e}"
+
     # Processing phase
     progress.start_processing()
 
@@ -459,8 +488,10 @@ def main():
     )
     report.reddit = deduped_reddit
     report.x = deduped_x
+    report.web = web_items
     report.reddit_error = reddit_error
     report.x_error = x_error
+    report.web_error = web_error
 
     # Generate context snippet
     report.context_snippet_md = render.render_context_snippet(report)
