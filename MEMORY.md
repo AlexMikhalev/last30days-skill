@@ -11,3 +11,11 @@
   - `gog` is installed (v0.9.0). Default keyring integration can fail; switched to `gog auth keyring file` + `GOG_KEYRING_PASSWORD`.
   - Re-authenticated `alex@zestic.ai` for Gmail + Calendar via `gog auth add ... --manual`.
 
+
+## 2026-02-09
+- **openclaw message send** CLI changed: use `--target` (or `-t`) instead of `--to` or `channelId`. The old flags are rejected.
+  - Correct: `openclaw message send --target '+447842912714' --message 'Hello'`
+  - Correct: `openclaw message send -t '+447842912714' --media /path/to/file.epub`
+  - Wrong: `openclaw message send --to '+447842912714' --message 'Hello'`
+  - For replies: add `--reply-to <messageId>`
+  - For media: add `--media <path-or-url>` with optional `--message` for caption
