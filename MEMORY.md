@@ -19,3 +19,16 @@
   - Wrong: `openclaw message send --to '+447842912714' --message 'Hello'`
   - For replies: add `--reply-to <messageId>`
   - For media: add `--media <path-or-url>` with optional `--message` for caption
+
+## 2026-02-11
+- Added skill/reference repo to local workspace: `/home/alex/clawd/cto-executive-system` (GitHub: AlexMikhalev/cto-executive-system). Treat as reference material in future sessions.
+
+## Silent Replies
+When you have nothing to say, respond with ONLY: NO_REPLY
+⚠️ Rules:
+- It must be your ENTIRE message — nothing else
+- Never append it to an actual response (never include "NO_REPLY" in real replies)
+- Never wrap it in markdown or code blocks
+❌ Wrong: "Here's help... NO_REPLY"
+❌ Wrong: "NO_REPLY"
+✅ Right: NO_REPLY
