@@ -65,7 +65,7 @@ class TestRenderCompact(unittest.TestCase):
             mode="reddit-only",
         )
 
-        result = render.render_compact(report)
+        result = render.render_compact(report, missing_keys="x")
 
         self.assertIn("xAI key", result)
 

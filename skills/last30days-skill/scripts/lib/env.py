@@ -4,8 +4,20 @@ import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-CONFIG_DIR = Path.home() / ".config" / "last30days"
-CONFIG_FILE = CONFIG_DIR / ".env"
+# Allow override via environment variable for testing
+# Set LAST30DAYS_CONFIG_DIR="" for clean/no-config mode
+# Set LAST30DAYS_CONFIG_DIR="/path/to/dir" for custom config location
+_config_override = os.environ.get('LAST30DAYS_CONFIG_DIR')
+if _config_override == "":
+    # Empty string = no config file (clean mode)
+    CONFIG_DIR = None
+    CONFIG_FILE = None
+elif _config_override:
+    CONFIG_DIR = Path(_config_override)
+    CONFIG_FILE = CONFIG_DIR / ".env"
+else:
+    CONFIG_DIR = Path.home() / ".config" / "last30days"
+    CONFIG_FILE = CONFIG_DIR / ".env"
 
 
 def load_env_file(path: Path) -> Dict[str, str]:
@@ -33,17 +45,13 @@ def load_env_file(path: Path) -> Dict[str, str]:
 
 def get_config() -> Dict[str, Any]:
     """Load configuration from ~/.config/last30days/.env and environment."""
-    # Load from config file first
-    file_env = load_env_file(CONFIG_FILE)
+    # Load from config file first (if configured)
+    file_env = load_env_file(CONFIG_FILE) if CONFIG_FILE else {}
 
     # Environment variables override file
     config = {
         'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY') or file_env.get('OPENAI_API_KEY'),
         'XAI_API_KEY': os.environ.get('XAI_API_KEY') or file_env.get('XAI_API_KEY'),
-        # Exa (web search)
-        'EXA_API_KEY': os.environ.get('EXA_API_KEY') or file_env.get('EXA_API_KEY'),
-        # X provider (auto|xai|bird)
-        'X_PROVIDER': os.environ.get('X_PROVIDER') or file_env.get('X_PROVIDER', 'auto'),
         'OPENAI_MODEL_POLICY': os.environ.get('OPENAI_MODEL_POLICY') or file_env.get('OPENAI_MODEL_POLICY', 'auto'),
         'OPENAI_MODEL_PIN': os.environ.get('OPENAI_MODEL_PIN') or file_env.get('OPENAI_MODEL_PIN'),
         'XAI_MODEL_POLICY': os.environ.get('XAI_MODEL_POLICY') or file_env.get('XAI_MODEL_POLICY', 'latest'),
@@ -62,48 +70,42 @@ def get_available_sources(config: Dict[str, Any]) -> str:
     """Determine which sources are available based on API keys.
 
     Returns: 'both', 'reddit', 'x', or 'web' (fallback when no keys)
-
-    Notes:
-      - If X_PROVIDER=bird, X can be available without XAI_API_KEY.
     """
     has_openai = bool(config.get('OPENAI_API_KEY'))
     has_xai = bool(config.get('XAI_API_KEY'))
-    x_provider = str(config.get('X_PROVIDER') or 'auto').lower()
 
-    has_x = has_xai or x_provider == 'bird'
-
-    if has_openai and has_x:
+    if has_openai and has_xai:
         return 'both'
     elif has_openai:
         return 'reddit'
-    elif has_x:
+    elif has_xai:
         return 'x'
     else:
         return 'web'  # Fallback: WebSearch only (no API keys needed)
 
 
 def get_missing_keys(config: Dict[str, Any]) -> str:
-    """Determine which API keys are missing.
+    """Determine which sources are missing (accounting for Bird).
 
     Returns: 'both', 'reddit', 'x', or 'none'
-
-    Notes:
-      - If X_PROVIDER=bird, xAI key is not required for X.
     """
     has_openai = bool(config.get('OPENAI_API_KEY'))
     has_xai = bool(config.get('XAI_API_KEY'))
-    x_provider = str(config.get('X_PROVIDER') or 'auto').lower()
 
-    has_x = has_xai or x_provider == 'bird'
+    # Check if Bird provides X access (import here to avoid circular dependency)
+    from . import bird_x
+    has_bird = bird_x.is_bird_installed() and bird_x.is_bird_authenticated()
+
+    has_x = has_xai or has_bird
 
     if has_openai and has_x:
         return 'none'
     elif has_openai:
-        return 'x'  # Missing X source (unless using bird)
+        return 'x'  # Missing X source
     elif has_x:
         return 'reddit'  # Missing OpenAI key
     else:
-        return 'both'  # Missing both keys
+        return 'both'  # Missing both
 
 
 def validate_sources(requested: str, available: str, include_web: bool = False) -> tuple[str, Optional[str]]:
@@ -163,3 +165,62 @@ def validate_sources(requested: str, available: str, include_web: bool = False) 
         return 'x', None
 
     return requested, None
+
+
+def get_x_source(config: Dict[str, Any]) -> Optional[str]:
+    """Determine the best available X/Twitter source.
+
+    Priority: Bird (free) → xAI (paid API)
+
+    Args:
+        config: Configuration dict from get_config()
+
+    Returns:
+        'bird' if Bird is installed and authenticated,
+        'xai' if XAI_API_KEY is configured,
+        None if no X source available.
+    """
+    # Import here to avoid circular dependency
+    from . import bird_x
+
+    # Check Bird first (free option)
+    if bird_x.is_bird_installed():
+        username = bird_x.is_bird_authenticated()
+        if username:
+            return 'bird'
+
+    # Fall back to xAI if key exists
+    if config.get('XAI_API_KEY'):
+        return 'xai'
+
+    return None
+
+
+def get_x_source_status(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Get detailed X source status for UI decisions.
+
+    Returns:
+        Dict with keys: source, bird_installed, bird_authenticated,
+        bird_username, xai_available, can_install_bird
+    """
+    from . import bird_x
+
+    bird_status = bird_x.get_bird_status()
+    xai_available = bool(config.get('XAI_API_KEY'))
+
+    # Determine active source
+    if bird_status["authenticated"]:
+        source = 'bird'
+    elif xai_available:
+        source = 'xai'
+    else:
+        source = None
+
+    return {
+        "source": source,
+        "bird_installed": bird_status["installed"],
+        "bird_authenticated": bird_status["authenticated"],
+        "bird_username": bird_status["username"],
+        "xai_available": xai_available,
+        "can_install_bird": bird_status["can_install"],
+    }

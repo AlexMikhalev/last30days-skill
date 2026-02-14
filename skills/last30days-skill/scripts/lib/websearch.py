@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from . import http, schema
+from . import schema
 
 
 # Month name mappings for date parsing
@@ -199,81 +199,6 @@ def extract_date_signals(
         return title_date, "med"
 
     return None, "low"
-
-
-def exa_search(
-    exa_api_key: str,
-    query: str,
-    from_date: Optional[str] = None,
-    to_date: Optional[str] = None,
-    num_results: int = 8,
-    search_type: str = "auto",
-    text_max_characters: int = 2000,
-) -> List[Dict[str, Any]]:
-    """Search the web via Exa and return WebSearch-like results.
-
-    Returns a list of dicts shaped like Claude WebSearch tool output:
-    {title, url, snippet, date, relevance}
-
-    Notes:
-    - Exa returns publishedDate in ISO8601; we map to YYYY-MM-DD.
-    - We use extracted page text as the snippet (truncated).
-    """
-    if not exa_api_key:
-        return []
-
-    payload: Dict[str, Any] = {
-        "query": query,
-        "type": search_type,
-        "num_results": int(num_results),
-        "contents": {"text": {"max_characters": int(text_max_characters)}},
-    }
-
-    # Constrain to last30days window when provided.
-    # Exa expects YYYY-MM-DD; we pass through from_date/to_date from the skill.
-    if from_date:
-        payload["startPublishedDate"] = from_date
-    if to_date:
-        payload["endPublishedDate"] = to_date
-
-    resp = http.post(
-        "https://api.exa.ai/search",
-        headers={"x-api-key": exa_api_key},
-        json_data=payload,
-        timeout=30,
-        retries=2,
-    )
-
-    results: List[Dict[str, Any]] = []
-    for r in (resp.get("results") or []):
-        if not isinstance(r, dict):
-            continue
-        url = r.get("url")
-        title = (r.get("title") or "").strip()
-        text = (r.get("text") or "").strip()
-        published = r.get("publishedDate")
-
-        date = None
-        if isinstance(published, str) and len(published) >= 10:
-            # e.g. 2026-01-30T...
-            date = published[:10]
-
-        snippet = text
-        if len(snippet) > 600:
-            snippet = snippet[:600].rstrip() + "…"
-
-        results.append(
-            {
-                "title": title,
-                "url": url,
-                "snippet": snippet,
-                "date": date,
-                # Exa doesn't provide a normalized 0..1 relevance in this response.
-                "relevance": 0.5,
-            }
-        )
-
-    return results
 
 
 # Domains to exclude (Reddit and X are handled separately)

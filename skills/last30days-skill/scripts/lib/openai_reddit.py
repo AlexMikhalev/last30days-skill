@@ -7,11 +7,38 @@ from typing import Any, Dict, List, Optional
 
 from . import http
 
+# Fallback models when the selected model isn't accessible (e.g., org not verified for GPT-5)
+MODEL_FALLBACK_ORDER = ["gpt-4o", "gpt-4.1", "gpt-4o-mini"]
+
 
 def _log_error(msg: str):
     """Log error to stderr."""
     sys.stderr.write(f"[REDDIT ERROR] {msg}\n")
     sys.stderr.flush()
+
+
+def _log_info(msg: str):
+    """Log info to stderr."""
+    sys.stderr.write(f"[REDDIT] {msg}\n")
+    sys.stderr.flush()
+
+
+def _is_model_access_error(error: http.HTTPError) -> bool:
+    """Check if error is due to model access/verification issues."""
+    if error.status_code not in (400, 403):
+        return False
+    if not error.body:
+        return False
+    body_lower = error.body.lower()
+    # Check for common access/verification error messages
+    return any(phrase in body_lower for phrase in [
+        "verified",
+        "organization must be",
+        "does not have access",
+        "not available",
+        "not found",
+    ])
+
 
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 
@@ -76,6 +103,18 @@ def _extract_core_subject(topic: str) -> str:
     return ' '.join(result[:3]) or topic  # Keep max 3 words
 
 
+def _build_subreddit_query(topic: str) -> str:
+    """Build a subreddit-targeted search query for fallback.
+
+    When standard search returns few results, try searching for the
+    subreddit itself: 'r/kanye', 'r/howie', etc.
+    """
+    core = _extract_core_subject(topic)
+    # Remove dots and special chars for subreddit name guess
+    sub_name = core.replace('.', '').replace(' ', '').lower()
+    return f"r/{sub_name} site:reddit.com"
+
+
 def search_reddit(
     api_key: str,
     model: str,
@@ -113,29 +152,131 @@ def search_reddit(
     # Adjust timeout based on depth (generous for OpenAI web_search which can be slow)
     timeout = 90 if depth == "quick" else 120 if depth == "default" else 180
 
+    # Build list of models to try: requested model first, then fallbacks
+    models_to_try = [model] + [m for m in MODEL_FALLBACK_ORDER if m != model]
+
     # Note: allowed_domains accepts base domain, not subdomains
     # We rely on prompt to filter out developers.reddit.com, etc.
-    payload = {
-        "model": model,
-        "tools": [
-            {
-                "type": "web_search",
-                "filters": {
-                    "allowed_domains": ["reddit.com"]
-                }
-            }
-        ],
-        "include": ["web_search_call.action.sources"],
-        "input": REDDIT_SEARCH_PROMPT.format(
-            topic=topic,
-            from_date=from_date,
-            to_date=to_date,
-            min_items=min_items,
-            max_items=max_items,
-        ),
-    }
+    input_text = REDDIT_SEARCH_PROMPT.format(
+        topic=topic,
+        from_date=from_date,
+        to_date=to_date,
+        min_items=min_items,
+        max_items=max_items,
+    )
 
-    return http.post(OPENAI_RESPONSES_URL, payload, headers=headers, timeout=timeout)
+    last_error = None
+    for current_model in models_to_try:
+        payload = {
+            "model": current_model,
+            "tools": [
+                {
+                    "type": "web_search",
+                    "filters": {
+                        "allowed_domains": ["reddit.com"]
+                    }
+                }
+            ],
+            "include": ["web_search_call.action.sources"],
+            "input": input_text,
+        }
+
+        try:
+            return http.post(OPENAI_RESPONSES_URL, payload, headers=headers, timeout=timeout)
+        except http.HTTPError as e:
+            last_error = e
+            if _is_model_access_error(e):
+                _log_info(f"Model {current_model} not accessible, trying fallback...")
+                continue
+            # Non-access error, don't retry with different model
+            raise
+
+    # All models failed with access errors
+    if last_error:
+        _log_error(f"All models failed. Last error: {last_error}")
+        raise last_error
+    raise http.HTTPError("No models available")
+
+
+def search_subreddits(
+    subreddits: List[str],
+    topic: str,
+    from_date: str,
+    to_date: str,
+    count_per: int = 5,
+) -> List[Dict[str, Any]]:
+    """Search specific subreddits via Reddit's free JSON endpoint.
+
+    No API key needed. Uses reddit.com/r/{sub}/search/.json endpoint.
+    Used in Phase 2 supplemental search after entity extraction.
+
+    Args:
+        subreddits: List of subreddit names (without r/)
+        topic: Search topic
+        from_date: Start date (YYYY-MM-DD)
+        to_date: End date (YYYY-MM-DD)
+        count_per: Results to request per subreddit
+
+    Returns:
+        List of raw item dicts (same format as parse_reddit_response output).
+    """
+    all_items = []
+    core = _extract_core_subject(topic)
+
+    for sub in subreddits:
+        sub = sub.lstrip("r/")
+        try:
+            url = f"https://www.reddit.com/r/{sub}/search/.json"
+            params = f"q={_url_encode(core)}&restrict_sr=on&sort=new&limit={count_per}&raw_json=1"
+            full_url = f"{url}?{params}"
+
+            headers = {
+                "User-Agent": http.USER_AGENT,
+                "Accept": "application/json",
+            }
+
+            data = http.get(full_url, headers=headers, timeout=15)
+
+            # Reddit search returns {"data": {"children": [...]}}
+            children = data.get("data", {}).get("children", [])
+            for i, child in enumerate(children):
+                if child.get("kind") != "t3":  # t3 = link/submission
+                    continue
+                post = child.get("data", {})
+                permalink = post.get("permalink", "")
+                if not permalink:
+                    continue
+
+                item = {
+                    "id": f"RS{len(all_items)+1}",
+                    "title": str(post.get("title", "")).strip(),
+                    "url": f"https://www.reddit.com{permalink}",
+                    "subreddit": str(post.get("subreddit", sub)).strip(),
+                    "date": None,
+                    "why_relevant": f"Found in r/{sub} supplemental search",
+                    "relevance": 0.65,  # Slightly lower default for supplemental
+                }
+
+                # Parse date from created_utc
+                created_utc = post.get("created_utc")
+                if created_utc:
+                    from . import dates as dates_mod
+                    item["date"] = dates_mod.timestamp_to_date(created_utc)
+
+                all_items.append(item)
+
+        except http.HTTPError as e:
+            _log_info(f"Subreddit search failed for r/{sub}: {e}")
+        except Exception as e:
+            _log_info(f"Subreddit search error for r/{sub}: {e}")
+
+    return all_items
+
+
+def _url_encode(text: str) -> str:
+    """Simple URL encoding for query parameters."""
+    import urllib.parse
+    return urllib.parse.quote_plus(text)
 
 
 def parse_reddit_response(response: Dict[str, Any]) -> List[Dict[str, Any]]:

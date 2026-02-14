@@ -7,13 +7,14 @@ from . import cache, http
 
 # OpenAI API
 OPENAI_MODELS_URL = "https://api.openai.com/v1/models"
-OPENAI_FALLBACK_MODELS = ["gpt-5.2", "gpt-5.1", "gpt-5", "gpt-4o"]
+# Prefer gpt-4o first (fast + capable), then 4.1/5-series.
+OPENAI_FALLBACK_MODELS = ["gpt-4o", "gpt-4.1", "gpt-5", "gpt-5.1", "gpt-5.2"]
 
-# xAI API - Agent Tools API requires grok-4 family
+# xAI API
 XAI_MODELS_URL = "https://api.x.ai/v1/models"
 XAI_ALIASES = {
-    "latest": "grok-4-1-fast",  # Required for x_search tool
-    "stable": "grok-4-1-fast",
+    "latest": "grok-4-latest",
+    "stable": "grok-4",
 }
 
 
@@ -35,8 +36,8 @@ def is_mainline_openai_model(model_id: str) -> bool:
     """Check if model is a mainline GPT model (not mini/nano/chat/codex/pro)."""
     model_lower = model_id.lower()
 
-    # Must be gpt-5 series
-    if not re.match(r'^gpt-5(\.\d+)*$', model_lower):
+    # Must be gpt-4o, gpt-4.1+, or gpt-5+ series (mainline, not mini/nano/etc)
+    if not re.match(r'^gpt-(?:4o|4\.1|5)(\.\d+)*$', model_lower):
         return False
 
     # Exclude variants
