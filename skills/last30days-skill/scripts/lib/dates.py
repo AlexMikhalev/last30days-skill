@@ -37,6 +37,8 @@ def parse_date(date_str: Optional[str]) -> Optional[datetime]:
         "%Y-%m-%dT%H:%M:%SZ",
         "%Y-%m-%dT%H:%M:%S%z",
         "%Y-%m-%dT%H:%M:%S.%f%z",
+        # Twitter-style timestamps (bird createdAt)
+        "%a %b %d %H:%M:%S %z %Y",
     ]
 
     for fmt in formats:

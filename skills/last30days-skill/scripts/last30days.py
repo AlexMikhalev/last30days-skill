@@ -9,6 +9,7 @@ Options:
     --mock              Use fixtures instead of real API calls
     --emit=MODE         Output mode: compact|json|md|context|path (default: compact)
     --sources=MODE      Source selection: auto|reddit|x|both (default: auto)
+    --x-provider=NAME   X provider: auto|xai|bird (default: auto)
     --quick             Faster research with fewer sources (8-12 each)
     --deep              Comprehensive research with more sources (50-70 Reddit, 40-60 X)
     --debug             Enable verbose debug logging
@@ -41,6 +42,7 @@ from lib import (
     ui,
     websearch,
     xai_x,
+    bird_x,
 )
 
 
@@ -124,20 +126,39 @@ def _search_x(
     to_date: str,
     depth: str,
     mock: bool,
+    x_provider: str = "auto",
 ) -> tuple:
-    """Search X via xAI (runs in thread).
+    """Search X via selected provider (runs in thread).
+
+    Providers:
+      - xai: xAI live search (requires XAI_API_KEY)
+      - bird: local bird CLI search (requires bird auth/cookies)
+      - auto: prefer xAI if key is present, else bird
 
     Returns:
-        Tuple of (x_items, raw_xai, error)
+        Tuple of (x_items, raw_x, error)
     """
-    raw_xai = None
+    raw_x = None
     x_error = None
 
     if mock:
-        raw_xai = load_fixture("xai_sample.json")
-    else:
-        try:
-            raw_xai = xai_x.search_x(
+        raw_x = load_fixture("xai_sample.json")
+        x_items = xai_x.parse_x_response(raw_x or {})
+        return x_items, raw_x, x_error
+
+    provider = (x_provider or "auto").lower()
+    if provider not in ("auto", "xai", "bird"):
+        provider = "auto"
+
+    # Auto-selection
+    if provider == "auto":
+        provider = "xai" if config.get("XAI_API_KEY") else "bird"
+
+    try:
+        if provider == "xai":
+            if not config.get("XAI_API_KEY"):
+                raise RuntimeError("XAI_API_KEY missing (needed for xai provider)")
+            raw_x = xai_x.search_x(
                 config["XAI_API_KEY"],
                 selected_models["xai"],
                 topic,
@@ -145,17 +166,25 @@ def _search_x(
                 to_date,
                 depth=depth,
             )
-        except http.HTTPError as e:
-            raw_xai = {"error": str(e)}
-            x_error = f"API error: {e}"
-        except Exception as e:
-            raw_xai = {"error": str(e)}
-            x_error = f"{type(e).__name__}: {e}"
+            x_items = xai_x.parse_x_response(raw_x or {})
+        else:
+            raw_x = bird_x.search_x(
+                topic,
+                from_date,
+                to_date,
+                depth=depth,
+            )
+            x_items = bird_x.parse_x_response(raw_x or {})
+    except http.HTTPError as e:
+        raw_x = {"error": str(e)}
+        x_error = f"API error: {e}"
+        x_items = []
+    except Exception as e:
+        raw_x = {"error": str(e)}
+        x_error = f"{type(e).__name__}: {e}"
+        x_items = []
 
-    # Parse response
-    x_items = xai_x.parse_x_response(raw_xai or {})
-
-    return x_items, raw_xai, x_error
+    return x_items, raw_x, x_error
 
 
 def run_research(
@@ -218,7 +247,7 @@ def run_research(
                 progress.start_x()
             x_future = executor.submit(
                 _search_x, topic, config, selected_models,
-                from_date, to_date, depth, mock
+                from_date, to_date, depth, mock, config.get("X_PROVIDER", "auto")
             )
 
         # Collect results
@@ -293,6 +322,12 @@ def main():
         help="Source selection",
     )
     parser.add_argument(
+        "--x-provider",
+        choices=["auto", "xai", "bird"],
+        default="auto",
+        help="X provider to use: auto|xai|bird (default: auto)",
+    )
+    parser.add_argument(
         "--quick",
         action="store_true",
         help="Faster research with fewer sources (8-12 each)",
@@ -340,6 +375,9 @@ def main():
 
     # Load config
     config = env.get_config()
+    # CLI can override config file/env for X provider
+    if getattr(args, "x_provider", None):
+        config["X_PROVIDER"] = args.x_provider
 
     # Check available sources
     available = env.get_available_sources(config)

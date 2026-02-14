@@ -40,8 +40,10 @@ def get_config() -> Dict[str, Any]:
     config = {
         'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY') or file_env.get('OPENAI_API_KEY'),
         'XAI_API_KEY': os.environ.get('XAI_API_KEY') or file_env.get('XAI_API_KEY'),
-        # Exa (web search) - optional; enables in-script web research
+        # Exa (web search)
         'EXA_API_KEY': os.environ.get('EXA_API_KEY') or file_env.get('EXA_API_KEY'),
+        # X provider (auto|xai|bird)
+        'X_PROVIDER': os.environ.get('X_PROVIDER') or file_env.get('X_PROVIDER', 'auto'),
         'OPENAI_MODEL_POLICY': os.environ.get('OPENAI_MODEL_POLICY') or file_env.get('OPENAI_MODEL_POLICY', 'auto'),
         'OPENAI_MODEL_PIN': os.environ.get('OPENAI_MODEL_PIN') or file_env.get('OPENAI_MODEL_PIN'),
         'XAI_MODEL_POLICY': os.environ.get('XAI_MODEL_POLICY') or file_env.get('XAI_MODEL_POLICY', 'latest'),
@@ -60,15 +62,21 @@ def get_available_sources(config: Dict[str, Any]) -> str:
     """Determine which sources are available based on API keys.
 
     Returns: 'both', 'reddit', 'x', or 'web' (fallback when no keys)
+
+    Notes:
+      - If X_PROVIDER=bird, X can be available without XAI_API_KEY.
     """
     has_openai = bool(config.get('OPENAI_API_KEY'))
     has_xai = bool(config.get('XAI_API_KEY'))
+    x_provider = str(config.get('X_PROVIDER') or 'auto').lower()
 
-    if has_openai and has_xai:
+    has_x = has_xai or x_provider == 'bird'
+
+    if has_openai and has_x:
         return 'both'
     elif has_openai:
         return 'reddit'
-    elif has_xai:
+    elif has_x:
         return 'x'
     else:
         return 'web'  # Fallback: WebSearch only (no API keys needed)
@@ -78,15 +86,21 @@ def get_missing_keys(config: Dict[str, Any]) -> str:
     """Determine which API keys are missing.
 
     Returns: 'both', 'reddit', 'x', or 'none'
+
+    Notes:
+      - If X_PROVIDER=bird, xAI key is not required for X.
     """
     has_openai = bool(config.get('OPENAI_API_KEY'))
     has_xai = bool(config.get('XAI_API_KEY'))
+    x_provider = str(config.get('X_PROVIDER') or 'auto').lower()
 
-    if has_openai and has_xai:
+    has_x = has_xai or x_provider == 'bird'
+
+    if has_openai and has_x:
         return 'none'
     elif has_openai:
-        return 'x'  # Missing xAI key
-    elif has_xai:
+        return 'x'  # Missing X source (unless using bird)
+    elif has_x:
         return 'reddit'  # Missing OpenAI key
     else:
         return 'both'  # Missing both keys
