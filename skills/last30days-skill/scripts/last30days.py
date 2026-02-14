@@ -32,6 +32,7 @@ from lib import (
     dedupe,
     entity_extract,
     env,
+    exa_web,
     http,
     models,
     normalize,
@@ -509,6 +510,12 @@ def main():
         metavar="N",
         help="Number of days to look back (1-30, default: 30)",
     )
+    parser.add_argument(
+        "--web-provider",
+        choices=["auto", "tool", "exa"],
+        default="auto",
+        help="Web provider: auto|tool|exa (default: auto). auto uses exa when EXA_API_KEY works, otherwise tool marker.",
+    )
 
     args = parser.parse_args()
 
@@ -678,6 +685,56 @@ def main():
     report.x = deduped_x
     report.reddit_error = reddit_error
     report.x_error = x_error
+
+    # Optional web research: Exa in-script OR tool marker
+    if args.include_web:
+        web_provider = args.web_provider
+        if web_provider == "auto":
+            web_provider = "exa" if config.get("EXA_API_KEY") else "tool"
+
+        if web_provider == "exa":
+            if not config.get("EXA_API_KEY"):
+                report.web_error = "EXA_API_KEY missing"
+                web_needed = True
+            else:
+                try:
+                    raw_exa = exa_web.search(
+                        config["EXA_API_KEY"],
+                        args.topic,
+                        from_date,
+                        to_date,
+                        num_results=12 if depth == "quick" else 15,
+                    )
+                    exa_items = exa_web.parse_search_results(raw_exa)
+                    web_norm = websearch.parse_websearch_results(
+                        exa_items,
+                        args.topic,
+                        from_date,
+                        to_date,
+                    )
+                    normalized_web = []
+                    for w in web_norm:
+                        report.web.append(
+                            schema.WebSearchItem(
+                                id=w.get("id", ""),
+                                title=w.get("title", ""),
+                                url=w.get("url", ""),
+                                source_domain=w.get("source_domain", ""),
+                                snippet=w.get("snippet", ""),
+                                date=w.get("date"),
+                                date_confidence=w.get("date_confidence", "low"),
+                                relevance=w.get("relevance", 0.5),
+                                why_relevant=w.get("why_relevant", ""),
+                            )
+                        )
+                    web_needed = False
+                except Exception as e:
+                    # If Exa fails (e.g. 403), fall back to tool marker
+                    report.web_error = f"Exa error: {type(e).__name__}: {e}"
+                    web_needed = True
+        else:
+            # tool mode always emits marker
+            web_needed = True
 
     # Generate context snippet
     report.context_snippet_md = render.render_context_snippet(report)
