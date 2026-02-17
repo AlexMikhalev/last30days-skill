@@ -1,14 +1,14 @@
 ---
 primitive: task
 title: "Export Medium Reading list to cto-executive-system knowledge (batch 5, pause 5m)"
-status: in-progress
+status: blocked
 priority: high
 owner: clawdious
 created: 2026-02-17T12:26:00Z
 tags: [medium,export,knowledge]
 project: openclaw-autonomy
 depends_on: []
-blocked_on: ""
+blocked_on: "Paused by Alex. Do not run on heartbeat."
 ---
 
 Target: `/home/alex/clawd/cto-executive-system/knowledge/medium/Reading list/`
@@ -23,3 +23,4 @@ Target: `/home/alex/clawd/cto-executive-system/knowledge/medium/Reading list/`
 - 2026-02-17: Task created.
 - 2026-02-17 13:40Z: Exported 1/5 for Batch 1:
   - Build Your First Claude Code Agent Skill… → `2026-01-12-build-your-first-claude-code-agent-skill.md`
+- 2026-02-17 15:12Z: Paused/disabled by Alex.
