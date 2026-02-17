@@ -1,0 +1,26 @@
+---
+primitive: decision
+fields:
+  title:
+    type: string
+    required: true
+  date:
+    type: date
+    required: true
+  status:
+    type: string
+    default: decided
+    enum: [proposed, decided, superseded]
+  context:
+    type: string
+  options:
+    type: string[]
+  decision:
+    type: string
+  rationale:
+    type: string
+  consequences:
+    type: string
+  tags:
+    type: string[]
+---

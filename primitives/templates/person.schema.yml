@@ -1,0 +1,19 @@
+---
+primitive: person
+fields:
+  name:
+    type: string
+    required: true
+  role:
+    type: string
+  org:
+    type: string
+  communication_style:
+    type: string
+  prefs:
+    type: string
+  links:
+    type: string[]
+  tags:
+    type: string[]
+---

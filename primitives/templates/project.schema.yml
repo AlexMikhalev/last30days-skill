@@ -1,0 +1,19 @@
+---
+primitive: project
+fields:
+  name:
+    type: string
+    required: true
+  status:
+    type: string
+    default: active
+    enum: [active, paused, done]
+  owner:
+    type: string
+  created:
+    type: datetime
+  tags:
+    type: string[]
+  links:
+    type: string[]
+---

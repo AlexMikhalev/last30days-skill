@@ -1,0 +1,34 @@
+---
+primitive: task
+fields:
+  title:
+    type: string
+    required: true
+  status:
+    type: string
+    required: true
+    default: open
+    enum: [open, in-progress, blocked, done]
+  priority:
+    type: string
+    default: medium
+    enum: [critical, high, medium, low]
+  owner:
+    type: string
+  created:
+    type: datetime
+  due:
+    type: date
+  tags:
+    type: string[]
+  estimate:
+    type: string
+  project:
+    type: string
+  parent:
+    type: string
+  depends_on:
+    type: string[]
+  blocked_on:
+    type: string
+---

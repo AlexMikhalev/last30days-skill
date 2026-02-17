@@ -1,0 +1,19 @@
+---
+primitive: lesson
+fields:
+  title:
+    type: string
+    required: true
+  date:
+    type: date
+    required: true
+  trigger:
+    type: string
+  lesson:
+    type: string
+    required: true
+  apply_when:
+    type: string
+  tags:
+    type: string[]
+---
