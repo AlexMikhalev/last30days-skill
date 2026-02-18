@@ -131,3 +131,17 @@ Ask Clawdbot things like:
 ### Notes / gotchas
 - The SKILL.md mentions commands like `clawdbot security audit` / `--deep` / `--fix`. Treat these as *suggested interfaces*; if the CLI subcommand doesn’t exist in this build, use the skill’s checklist and run the underlying inspection commands (e.g., checking `~/.clawdbot/clawdbot.json`, file permissions, bind addresses) rather than assuming a built-in command.
 - If implementing an automated audit command later, keep it **read-only** by default, and require explicit user confirmation before any config changes.
+
+---
+
+## Terraphim: making custom roles show up in `terraphim-agent roles list`
+
+### Symptom
+- `terraphim-agent roles list` only shows the 3 embedded roles, and you see errors like `docs/src/kg: No such file or directory`.
+
+### Cause
+- `terraphim-agent` (v1.4.10) loads roles from the persisted **Embedded** config file named `embedded_config.json`.
+- If that file can’t be loaded from persistence, it falls back to hardcoded embedded defaults (3 roles), including a KG path of `docs/src/kg`.
+
+### Fix pattern
+- Ensure persistence points to a known data dir (via `TERRAPHIM_SETTINGS_PATH` + device settings), then write a valid `embedded_config.json` with your multiple roles and KG paths under `~/.config/terraphim/kg/...`.

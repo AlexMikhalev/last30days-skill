@@ -23,6 +23,13 @@
 ## 2026-02-11
 - Added skill/reference repo to local workspace: `/home/alex/clawd/cto-executive-system` (GitHub: AlexMikhalev/cto-executive-system). Treat as reference material in future sessions.
 
+## 2026-02-18
+- Updated OpenClaw: **2026.2.6-3 → 2026.2.17** (bun global update; gateway restarted).
+- Terraphim integration status:
+  - `terraphim-skills` hooks installed and wired for Claude (`~/.claude/hooks/*`, `~/.claude/settings.local.json`).
+  - `terraphim-agent` installed as **musl** binary due to system glibc=2.31; version **1.4.10**.
+  - To add custom roles to `terraphim-agent roles list`, the agent must load a persisted **Embedded** config named `embedded_config.json` (otherwise it falls back to the hardcoded 3-role embedded defaults, including broken `docs/src/kg`). Persistence location is controlled by device settings / `TERRAPHIM_SETTINGS_PATH`.
+
 ## Silent Replies
 When you have nothing to say, respond with ONLY: NO_REPLY
 ⚠️ Rules:
