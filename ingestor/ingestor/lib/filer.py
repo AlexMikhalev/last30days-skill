@@ -31,8 +31,12 @@ class Filer:
         return json.loads(data.decode("utf-8", "replace"))
 
     def download_full_path(self, full_path: str) -> bytes:
-        # full_path is like /buckets/books/....
-        url = self._url(full_path)
+        # full_path is like /buckets/books/<key> and may contain spaces.
+        # Percent-encode the path portion safely.
+        if not full_path.startswith("/"):
+            full_path = "/" + full_path
+        encoded_path = urllib.parse.quote(full_path, safe="/()%:-._~")
+        url = self._url(encoded_path)
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=60) as resp:
             return resp.read()
