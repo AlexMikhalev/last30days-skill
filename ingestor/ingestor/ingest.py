@@ -205,11 +205,26 @@ def cmd_discover_filer(cfg: AppConfig, filer: Filer, bucket: str, prefix: str) -
     print(json.dumps({"mode": "filer", "bucket": bucket, "prefix": prefix, "count": len(objs), "objects": objs[:200]}, indent=2))
 
 
-def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: str, prefix: str, max_files: int | None) -> None:
+def cmd_run(
+    cfg: AppConfig,
+    s5: S5Cmd,
+    filer: Filer,
+    state: StateStore,
+    qw: Quickwit,
+    bucket: str,
+    prefix: str,
+    max_files: int | None,
+    *,
+    mode: str = "s3",
+) -> None:
     run_id = make_run_id()
     started = utc_now_iso()
 
-    objs = list_candidate_objects(cfg, s5, bucket, prefix)
+    if mode == "filer":
+        objs = list_candidate_objects_filer(cfg, filer, bucket, prefix)
+    else:
+        objs = list_candidate_objects(cfg, s5, bucket, prefix)
+
     if max_files is None:
         max_files = cfg.max_files
     objs = objs[:max_files]
@@ -231,7 +246,12 @@ def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: 
                 skipped += 1
                 continue
 
-            etag = head_etag(s5, bucket, key)
+            # change token
+            if mode == "filer":
+                etag = o.get("md5") or sha256_hex(f"{key}|{last_modified}|{size}")
+            else:
+                etag = head_etag(s5, bucket, key)
+
             manifest = state.load_manifest(bucket, key)
             if manifest and manifest.get("status") == "ok" and manifest.get("etag") == etag and int(manifest.get("size", -1)) == size:
                 skipped += 1
@@ -239,14 +259,21 @@ def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: 
 
             local = td_path / "file"
             try:
-                s5.cp(f"s3://{bucket}/{key}", str(local))
+                if mode == "filer":
+                    full_path = o.get("full_path")
+                    if not full_path:
+                        raise RuntimeError(f"missing full_path for {key}")
+                    local.write_bytes(filer.download_full_path(full_path))
+                else:
+                    s5.cp(f"s3://{bucket}/{key}", str(local))
+
                 text = extract_file(ext, local)
                 ndjson_bytes, meta = build_ndjson_docs(
                     bucket=bucket,
                     key=key,
                     etag=etag,
                     last_modified=last_modified,
-                    content_type="application/octet-stream",
+                    content_type=o.get("mime") or "application/octet-stream",
                     ext=ext,
                     text=text,
                     chunk_cfg=chunk_cfg,
@@ -263,7 +290,7 @@ def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: 
                         "etag": etag,
                         "last_modified": last_modified,
                         "size": size,
-                        "content_type": "application/octet-stream",
+                        "content_type": o.get("mime") or "application/octet-stream",
                         "extension": ext,
                         "status": "ok",
                         "run_id": run_id,
@@ -286,7 +313,7 @@ def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: 
                             "etag": etag,
                             "last_modified": last_modified,
                             "size": size,
-                            "content_type": "application/octet-stream",
+                            "content_type": o.get("mime") or "application/octet-stream",
                             "extension": ext,
                             "status": "error",
                             "run_id": run_id,
@@ -305,6 +332,7 @@ def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: 
         "finished_at": utc_now_iso(),
         "bucket": bucket,
         "prefix": prefix,
+        "mode": mode,
         "totals": {"processed": processed, "skipped": skipped, "errors": errors, "candidates": len(objs)},
     }
     state.save_run(run_id, summary)
@@ -430,6 +458,7 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--bucket", required=True)
     r.add_argument("--prefix", default="")
     r.add_argument("--max-files", type=int, default=None)
+    r.add_argument("--mode", choices=["s3", "filer"], default="s3")
 
     v = sub.add_parser("verify")
     v.add_argument("--bucket", required=True)
@@ -465,7 +494,7 @@ def main(argv: Optional[list[str]] = None) -> None:
         else:
             cmd_discover(cfg, s5, args.bucket, args.prefix)
     elif args.cmd == "run":
-        cmd_run(cfg, s5, state, qw, args.bucket, args.prefix, args.max_files)
+        cmd_run(cfg, s5, filer, state, qw, args.bucket, args.prefix, args.max_files, mode=args.mode)
     elif args.cmd == "verify":
         if args.mode == "filer":
             cmd_verify_filer(cfg, filer, qw, args.bucket, args.prefix)

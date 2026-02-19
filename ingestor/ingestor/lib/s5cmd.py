@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-import json
+import os
 import subprocess
 from dataclasses import dataclass
 from typing import Optional
+
+from .env import effective_aws_env
 
 
 @dataclass(frozen=True)
@@ -15,12 +17,15 @@ class S5Cmd:
 
     def run(self, args: list[str], *, input_bytes: bytes | None = None) -> subprocess.CompletedProcess:
         cmd = self._base_args() + args
+        env = os.environ.copy()
+        env.update(effective_aws_env())
         return subprocess.run(
             cmd,
             input=input_bytes,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
+            env=env,
         )
 
     def ls(self, uri_glob: str) -> str:
