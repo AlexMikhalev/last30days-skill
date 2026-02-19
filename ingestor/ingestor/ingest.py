@@ -312,12 +312,18 @@ def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: 
 
 
 def cmd_verify(cfg: AppConfig, qw: Quickwit, bucket: str, prefix: str) -> None:
-    # Verification mode: pick first 10 candidate files and ensure search can find docs by bucket/key.
-    # We require that ingestion has been run already.
+    # Verification mode:
+    # 1) ingest up to 10 smallest candidate files
+    # 2) ensure search can find docs by bucket/key
     s5 = S5Cmd(cfg.seaweed_endpoint)
-    objs = list_candidate_objects(cfg, s5, bucket, prefix)[:10]
-    if len(objs) < 10:
-        raise SystemExit("Need at least 10 candidate files under bucket/prefix for verify.")
+    state = StateStore(s5=s5, bucket=cfg.state_bucket)
+    qw.ensure_index(cfg.quickwit_index, load_index_config(Path(__file__).parent / "schemas" / "quickwit-index.yaml"))
+
+    objs = sorted(list_candidate_objects(cfg, s5, bucket, prefix), key=lambda o: int(o.get("size", 0)))[:10]
+    if len(objs) < 1:
+        raise SystemExit("Need at least 1 candidate file under bucket/prefix for verify.")
+
+    cmd_run(cfg, s5, state, qw, bucket, prefix, max_files=len(objs))
 
     results: list[dict[str, Any]] = []
     for o in objs:
@@ -333,6 +339,67 @@ def cmd_verify(cfg: AppConfig, qw: Quickwit, bucket: str, prefix: str) -> None:
         raise SystemExit(2)
 
 
+def cmd_verify_filer(cfg: AppConfig, filer: Filer, qw: Quickwit, bucket: str, prefix: str) -> None:
+    # Verification mode (filer):
+    # 1) ingest up to 10 smallest candidate files via filer download
+    # 2) ensure search can find docs by bucket/key
+    qw.ensure_index(cfg.quickwit_index, load_index_config(Path(__file__).parent / "schemas" / "quickwit-index.yaml"))
+
+    objs = sorted(list_candidate_objects_filer(cfg, filer, bucket, prefix), key=lambda o: int(o.get("size", 0)))[:10]
+    if len(objs) < 1:
+        raise SystemExit("Need at least 1 candidate file under bucket/prefix for verify.")
+
+    chunk_cfg = ChunkingConfig(cfg.chunk_chars, cfg.overlap_chars)
+
+    ingested_keys: list[str] = []
+    for o in objs:
+        key = o["key"]
+        ext = o["ext"]
+        full_path = o.get("full_path")
+        if not full_path:
+            raise RuntimeError(f"missing full_path for {key}")
+
+        data = filer.download_full_path(full_path)
+        with tempfile.NamedTemporaryFile(prefix="filer-", suffix="." + ext, delete=False) as tf:
+            tf.write(data)
+            tmp_path = Path(tf.name)
+
+        try:
+            text = extract_file(ext, tmp_path)
+        finally:
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        # Use md5 from filer as a stable-ish change token when available.
+        etag = o.get("md5") or sha256_hex(f"{key}|{o.get('last_modified','')}|{o.get('size',0)}")
+        ndjson_bytes, _meta = build_ndjson_docs(
+            bucket=bucket,
+            key=key,
+            etag=etag,
+            last_modified=o.get("last_modified", ""),
+            content_type=o.get("mime", "application/octet-stream"),
+            ext=ext,
+            text=text,
+            chunk_cfg=chunk_cfg,
+        )
+        qw.ingest_ndjson(cfg.quickwit_index, ndjson_bytes)
+        ingested_keys.append(key)
+
+    results: list[dict[str, Any]] = []
+    for key in ingested_keys:
+        q = f'bucket:{bucket} AND key:"{key}"'
+        resp = qw.search(cfg.quickwit_index, q, max_hits=1)
+        ok = int(resp.get("num_hits", 0)) >= 1
+        results.append({"key": key, "query": q, "num_hits": resp.get("num_hits"), "ok": ok})
+
+    all_ok = all(r["ok"] for r in results)
+    print(json.dumps({"ok": all_ok, "mode": "filer", "results": results}, indent=2))
+    if not all_ok:
+        raise SystemExit(2)
+
+
 def cmd_report(cfg: AppConfig, s5: S5Cmd) -> None:
     # v1: list last 5 run summaries (best effort)
     out = s5.ls(f"s3://{cfg.state_bucket}/v1/runs/*")
@@ -344,6 +411,11 @@ def cmd_report(cfg: AppConfig, s5: S5Cmd) -> None:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="ingestor")
     p.add_argument("--config", default=str(Path(__file__).resolve().parents[1] / ".." / "config.yaml"))
+    p.add_argument(
+        "--filer-url",
+        default=None,
+        help="Override SeaweedFS Filer base URL (e.g. http://rpi4node3:8888). If omitted, derived from seaweed.endpoint by replacing :8333 -> :8888.",
+    )
 
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -380,7 +452,8 @@ def main(argv: Optional[list[str]] = None) -> None:
             raise SystemExit(f"bucket {args.bucket} not in allowlist")
 
     s5 = S5Cmd(cfg.seaweed_endpoint)
-    filer = Filer(cfg.seaweed_endpoint.replace(":8333", ":8888"))
+    filer_url = args.filer_url or cfg.seaweed_endpoint.replace(":8333", ":8888")
+    filer = Filer(filer_url)
     state = StateStore(s5=s5, bucket=cfg.state_bucket)
     qw = Quickwit(cfg.quickwit_base)
 
@@ -394,7 +467,10 @@ def main(argv: Optional[list[str]] = None) -> None:
     elif args.cmd == "run":
         cmd_run(cfg, s5, state, qw, args.bucket, args.prefix, args.max_files)
     elif args.cmd == "verify":
-        cmd_verify(cfg, qw, args.bucket, args.prefix)
+        if args.mode == "filer":
+            cmd_verify_filer(cfg, filer, qw, args.bucket, args.prefix)
+        else:
+            cmd_verify(cfg, qw, args.bucket, args.prefix)
     elif args.cmd == "report":
         cmd_report(cfg, s5)
     else:
