@@ -16,6 +16,7 @@ import yaml
 from .lib.chunk import ChunkingConfig, chunk_text
 from .lib.quickwit import Quickwit, load_index_config
 from .lib.s5cmd import S5Cmd, parse_s5_ls
+from .lib.filer import Filer
 from .lib.state_store import StateStore, utc_now_iso
 from .lib.util import doc_id, sha256_hex
 from .lib.extract.text_md import extract_text_bytes
@@ -99,6 +100,33 @@ def list_candidate_objects(cfg: AppConfig, s5: S5Cmd, bucket: str, prefix: str) 
     return results
 
 
+def list_candidate_objects_filer(cfg: AppConfig, filer: Filer, bucket: str, prefix: str) -> list[dict[str, Any]]:
+    data = filer.list_bucket_prefix(bucket, prefix, limit=5000)
+    entries = data.get("Entries") or []
+
+    allowed_exts = {e.lower() for e in cfg.extensions}
+    results: list[dict[str, Any]] = []
+    for e in entries:
+        full_path = e.get("FullPath") or ""
+        # Convert FullPath (/buckets/<bucket>/<key>) -> key
+        key = full_path.split(f"/buckets/{bucket}/", 1)[-1] if f"/buckets/{bucket}/" in full_path else full_path.lstrip("/")
+        ext = infer_extension(key)
+        if ext not in allowed_exts:
+            continue
+        results.append(
+            {
+                "last_modified": (e.get("Mtime") or ""),
+                "size": int(e.get("FileSize") or 0),
+                "key": key,
+                "ext": ext,
+                "full_path": full_path,
+                "mime": (e.get("Mime") or ""),
+                "md5": (e.get("Md5") or ""),
+            }
+        )
+    return results
+
+
 def head_etag(s5: S5Cmd, bucket: str, key: str) -> str:
     # s5cmd has no dedicated HEAD output; `ls` for exact object returns a single line with size, but not etag.
     # SeaweedFS S3 ETag is not accessible via s5cmd directly; for v1 we approximate etag using size+mtime+key.
@@ -170,6 +198,11 @@ def cmd_init(cfg: AppConfig, qw: Quickwit) -> None:
 def cmd_discover(cfg: AppConfig, s5: S5Cmd, bucket: str, prefix: str) -> None:
     objs = list_candidate_objects(cfg, s5, bucket, prefix)
     print(json.dumps({"bucket": bucket, "prefix": prefix, "count": len(objs), "objects": objs[:50]}, indent=2))
+
+
+def cmd_discover_filer(cfg: AppConfig, filer: Filer, bucket: str, prefix: str) -> None:
+    objs = list_candidate_objects_filer(cfg, filer, bucket, prefix)
+    print(json.dumps({"mode": "filer", "bucket": bucket, "prefix": prefix, "count": len(objs), "objects": objs[:200]}, indent=2))
 
 
 def cmd_run(cfg: AppConfig, s5: S5Cmd, state: StateStore, qw: Quickwit, bucket: str, prefix: str, max_files: int | None) -> None:
@@ -319,6 +352,7 @@ def build_parser() -> argparse.ArgumentParser:
     d = sub.add_parser("discover")
     d.add_argument("--bucket", required=True)
     d.add_argument("--prefix", default="")
+    d.add_argument("--mode", choices=["s3", "filer"], default="s3")
 
     r = sub.add_parser("run")
     r.add_argument("--bucket", required=True)
@@ -328,6 +362,7 @@ def build_parser() -> argparse.ArgumentParser:
     v = sub.add_parser("verify")
     v.add_argument("--bucket", required=True)
     v.add_argument("--prefix", default="")
+    v.add_argument("--mode", choices=["s3", "filer"], default="s3")
 
     rep = sub.add_parser("report")
     rep.add_argument("--last", action="store_true")
@@ -345,13 +380,17 @@ def main(argv: Optional[list[str]] = None) -> None:
             raise SystemExit(f"bucket {args.bucket} not in allowlist")
 
     s5 = S5Cmd(cfg.seaweed_endpoint)
+    filer = Filer(cfg.seaweed_endpoint.replace(":8333", ":8888"))
     state = StateStore(s5=s5, bucket=cfg.state_bucket)
     qw = Quickwit(cfg.quickwit_base)
 
     if args.cmd == "init":
         cmd_init(cfg, qw)
     elif args.cmd == "discover":
-        cmd_discover(cfg, s5, args.bucket, args.prefix)
+        if args.mode == "filer":
+            cmd_discover_filer(cfg, filer, args.bucket, args.prefix)
+        else:
+            cmd_discover(cfg, s5, args.bucket, args.prefix)
     elif args.cmd == "run":
         cmd_run(cfg, s5, state, qw, args.bucket, args.prefix, args.max_files)
     elif args.cmd == "verify":
