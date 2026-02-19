@@ -1,0 +1,36 @@
+seaweed:
+  endpoint: "http://rpi4node3:8333"
+  state_bucket: "quickwit_ingest_state"
+  allow_buckets:
+    - books
+    - backups
+    - alex
+    - alex_linux
+    - common_linux
+    - mac_home_alex
+    - mac_home_karina
+    - icloud_drive
+    - sharedbucket
+    - upload
+  extensions:
+    - txt
+    - md
+    - markdown
+    - pdf
+    - epub
+
+quickwit:
+  base_url: "http://127.0.0.1:7280"
+  index_id: "seaweed_docs"
+
+limits:
+  max_files: 1000
+  max_bytes: 524288000   # 500 MiB
+
+workers:
+  download: 4
+  extract: 2
+
+chunking:
+  chunk_chars: 12000
+  overlap_chars: 600

@@ -1,0 +1,23 @@
+[project]
+name = "seaweed-quickwit-ingestor"
+version = "0.1.0"
+description = "Ingest text/markdown/pdf/epub from SeaweedFS S3 into Quickwit."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pyyaml>=6.0",
+  "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+epub = [
+  "ebooklib>=0.18",
+  "beautifulsoup4>=4.12",
+  "lxml>=5.1",
+]
+
+[project.scripts]
+ingestor = "ingestor.ingest:main"
+
+[tool.uv]
+package = true
