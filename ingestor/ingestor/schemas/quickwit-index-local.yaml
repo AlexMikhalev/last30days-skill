@@ -1,0 +1,55 @@
+version: 0.7
+index_id: seaweed_docs
+index_uri: file:///home/alex/clawd/data/quickwit/indexes/seaweed_docs
+
+doc_mapping:
+  field_mappings:
+    - name: id
+      type: text
+      tokenizer: raw
+      stored: true
+    - name: bucket
+      type: text
+      tokenizer: raw
+      stored: true
+    - name: key
+      type: text
+      tokenizer: raw
+      stored: true
+    - name: etag
+      type: text
+      tokenizer: raw
+      stored: true
+    - name: last_modified
+      type: datetime
+      stored: true
+      fast: true
+    - name: extension
+      type: text
+      tokenizer: raw
+      stored: true
+    - name: content_type
+      type: text
+      tokenizer: raw
+      stored: true
+    - name: chunk_id
+      type: u64
+      stored: true
+      fast: true
+    - name: source_uri
+      type: text
+      tokenizer: raw
+      stored: true
+    - name: text
+      type: text
+      tokenizer: default
+      stored: true
+  tag_fields: []
+  store_source: true
+
+search_settings:
+  default_search_fields:
+    - text
+    - bucket
+    - key
+    - id

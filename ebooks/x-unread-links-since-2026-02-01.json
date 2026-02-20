@@ -1,0 +1,383 @@
+{
+  "cutoff_iso": "2026-02-01T23:59:59.000Z",
+  "generated_at": "2026-02-11T06:53:47.901Z",
+  "count": 47,
+  "items": [
+    {
+      "createdAt": "Tue Feb 03 10:45:23 +0000 2026",
+      "url": "https://t.co/bjjWPWTXIr",
+      "src": "like",
+      "author": "antirez",
+      "tweetId": "2018636930888409480",
+      "text": "Welcome to TgTerm: run your coding agents via Telegram for fun and profit:\n\nhttps://t.co/bjjWPWTXIr"
+    },
+    {
+      "createdAt": "Tue Feb 03 17:17:03 +0000 2026",
+      "url": "https://t.co/eLRaPDCF3O",
+      "src": "bookmark",
+      "author": "DrDominicNg",
+      "tweetId": "2018735498622087346",
+      "text": "https://t.co/eLRaPDCF3O"
+    },
+    {
+      "createdAt": "Tue Feb 03 21:37:04 +0000 2026",
+      "url": "https://t.co/oIEaaRiVew",
+      "src": "bookmark",
+      "author": "aniketapanjwani",
+      "tweetId": "2018800934529249326",
+      "text": "https://t.co/oIEaaRiVew"
+    },
+    {
+      "createdAt": "Tue Feb 03 21:44:16 +0000 2026",
+      "url": "https://t.co/V6LYxD42AM",
+      "src": "like",
+      "author": "Shpigford",
+      "tweetId": "2018802745286000905",
+      "text": "@charlieholtz Sooooo anyway to ignore/override this? I genuinely prefer aggressive use of AskUserQuestion. It's my favorite Claude Code feature by a long shot. https://t.co/V6LYxD42AM"
+    },
+    {
+      "createdAt": "Tue Feb 03 21:59:05 +0000 2026",
+      "url": "https://t.co/yQYdRgTjTZ",
+      "src": "like",
+      "author": "mitsuhiko",
+      "tweetId": "2018806473086926962",
+      "text": "@matteocollina The sandbox is unaware of the funky business. It just talks ethernet. There is a JS implementation of Ethernet that handles DNS and TCP and re-encrypts TLS so you can do full interception of all HTTP requests which is super cool because you can just replace fetch. https://t.co/yQYdRgTjTZ"
+    },
+    {
+      "createdAt": "Tue Feb 03 22:07:51 +0000 2026",
+      "url": "https://t.co/1gaV4HgCwC",
+      "src": "bookmark",
+      "author": "virattt",
+      "tweetId": "2018808679441785333",
+      "text": "Code: https://t.co/1gaV4HgCwC"
+    },
+    {
+      "createdAt": "Tue Feb 03 23:06:09 +0000 2026",
+      "url": "https://t.co/4m3Tn0IPPX",
+      "src": "bookmark",
+      "author": "molt_cornelius",
+      "tweetId": "2018823350563614912",
+      "text": "https://t.co/4m3Tn0IPPX"
+    },
+    {
+      "createdAt": "Wed Feb 04 03:28:16 +0000 2026",
+      "url": "https://t.co/Npel0Bxx1z",
+      "src": "bookmark",
+      "author": "_allanguo",
+      "tweetId": "2018889315812880797",
+      "text": "https://t.co/Npel0Bxx1z"
+    },
+    {
+      "createdAt": "Wed Feb 04 09:52:45 +0000 2026",
+      "url": "https://t.co/Uf9tPy5Yh2",
+      "src": "like",
+      "author": "rohanpaul_ai",
+      "tweetId": "2018986073360408875",
+      "text": "In new interview Jensen Huang has just shut down the idea that AI is going to replace the software industry.\n\nHe says \"it is the most illogical idea in the world. And time will prove itself.\"\n\nSoftware = Tools\n\nAnd AI will always rely on those tools\nhttps://t.co/Uf9tPy5Yh2"
+    },
+    {
+      "createdAt": "Wed Feb 04 11:40:00 +0000 2026",
+      "url": "https://t.co/jV3IkHndkf",
+      "src": "like",
+      "author": "rahuldotdev",
+      "tweetId": "2019013063803117726",
+      "text": "Borrowed this thought from Tsoding, and he's not wrong actually. \n\n🔗 https://t.co/jV3IkHndkf https://t.co/oPciGqDChZ"
+    },
+    {
+      "createdAt": "Wed Feb 04 11:42:05 +0000 2026",
+      "url": "https://t.co/zczCRqh6sA",
+      "src": "bookmark",
+      "author": "TigerBeetleDB",
+      "tweetId": "2019013589705916447",
+      "text": "https://t.co/zczCRqh6sA\n\nA new, visual home for TigerStyle -- the software engineering methodology developed by TigerBeetle to produce safer, faster software in less time.\n\n\"Do the hard thing today to make tomorrow easy.\"\n\"If you want to be remembered, be remarkable.\" https://t.co/EWg8ewkzST"
+    },
+    {
+      "createdAt": "Wed Feb 04 13:19:15 +0000 2026",
+      "url": "https://t.co/y5LKgp3LB5",
+      "src": "like",
+      "author": "gooby_esq",
+      "tweetId": "2019038041902616930",
+      "text": "made a thing, \"rlmgrep\", experimental\n\nbasically it's grep style search (or question answering) over a dir/set of files, but under the hood it uses DSPy's RLM instead of normal grep. \n\nin -v verbose mode you can see the interim RLM output. \n\nhttps://t.co/y5LKgp3LB5 https://t.co/iZPzCe9BZ3"
+    },
+    {
+      "createdAt": "Wed Feb 04 13:44:10 +0000 2026",
+      "url": "https://t.co/3xUoetOMEU",
+      "src": "like",
+      "author": "dottxtai",
+      "tweetId": "2019044312281973124",
+      "text": "We spent two years getting LLMs to speak valid JSON.\n\nThat was the easy part.\n\nNow we're solving what actually matters: making sure the model can't even express an action it's not allowed to take.\n\nNot \"will not.\" Cannot. 👇\n\nhttps://t.co/3xUoetOMEU https://t.co/HaFlLKZm6j"
+    },
+    {
+      "createdAt": "Wed Feb 04 13:56:09 +0000 2026",
+      "url": "https://t.co/HSJ1S8fmn4",
+      "src": "bookmark",
+      "author": "pontusab",
+      "tweetId": "2019047326694744239",
+      "text": "https://t.co/HSJ1S8fmn4"
+    },
+    {
+      "createdAt": "Wed Feb 04 15:26:02 +0000 2026",
+      "url": "https://t.co/lDZwewz4SP",
+      "src": "like",
+      "author": "thdxr",
+      "tweetId": "2019069945804439885",
+      "text": "huge personal milestone for me after 15 years as an arch linux user one of our packages has been moved into the official Arch Linux repositories https://t.co/lDZwewz4SP"
+    },
+    {
+      "createdAt": "Wed Feb 04 15:37:27 +0000 2026",
+      "url": "https://t.co/SUB8X1Croe",
+      "src": "like",
+      "author": "CarlBovisNature",
+      "tweetId": "2019072817984106858",
+      "text": "My account is pretty simple.\n I take photos of the birds I see on the Somerset Levels where I live, and I share them here every day.\n  I've been doing that for over 10 years.\n That's it!\n I started with zero followers, &amp; now I'm nearing 200,000!\n Be consistent and authentic! 🙏😊 https://t.co/SUB8X1Croe"
+    },
+    {
+      "createdAt": "Wed Feb 04 19:32:33 +0000 2026",
+      "url": "https://t.co/BuXD60HdwW",
+      "src": "like",
+      "author": "DanielcHooper",
+      "tweetId": "2019131986225557589",
+      "text": "I wrote a UI library in C that can lay out 95000 items at 60fps. \n\nThe library is 566 lines of C, and the application-specific ui code is 998 lines. Works on mac, windows, and linux. https://t.co/BuXD60HdwW"
+    },
+    {
+      "createdAt": "Wed Feb 04 23:27:27 +0000 2026",
+      "url": "https://t.co/yhzRXr0p3j",
+      "src": "bookmark",
+      "author": "molt_cornelius",
+      "tweetId": "2019191099097600199",
+      "text": "https://t.co/yhzRXr0p3j"
+    },
+    {
+      "createdAt": "Thu Feb 05 03:50:35 +0000 2026",
+      "url": "https://t.co/BBU50qPaXt",
+      "src": "bookmark",
+      "author": "AiBreakfast",
+      "tweetId": "2019257319184355691",
+      "text": "https://t.co/BBU50qPaXt"
+    },
+    {
+      "createdAt": "Thu Feb 05 12:43:34 +0000 2026",
+      "url": "https://t.co/qWMyW3cQ0Q",
+      "src": "like",
+      "author": "mitsuhiko",
+      "tweetId": "2019391450652504106",
+      "text": "I want to see this world. If for no other reason that it brings data control to the user and away from large cloud providers which are currently gating machine access behind layers of terms of service and compliance. https://t.co/qWMyW3cQ0Q"
+    },
+    {
+      "createdAt": "Thu Feb 05 16:17:54 +0000 2026",
+      "url": "https://t.co/SAGMeGR3JX",
+      "src": "bookmark",
+      "author": "aschwags3",
+      "tweetId": "2019445386906046800",
+      "text": "https://t.co/SAGMeGR3JX"
+    },
+    {
+      "createdAt": "Thu Feb 05 17:43:34 +0000 2026",
+      "url": "https://t.co/EnEFVQgJZU",
+      "src": "bookmark",
+      "author": "shedsgns",
+      "tweetId": "2019466945993609576",
+      "text": "https://t.co/EnEFVQgJZU"
+    },
+    {
+      "createdAt": "Thu Feb 05 18:29:41 +0000 2026",
+      "url": "https://t.co/5xD3qbEoom",
+      "src": "bookmark",
+      "author": "alexellisuk",
+      "tweetId": "2019478550596706470",
+      "text": "Here's a demo of how quickly you can boot @slicervm on an M2 with Apple's native Virtualization framework.\n\nIt can run K3s/Docker and feels.. speedy..\n\nIn the demo I use k3sup from my host, then install a Helm chart. https://t.co/5xD3qbEoom"
+    },
+    {
+      "createdAt": "Thu Feb 05 18:55:24 +0000 2026",
+      "url": "https://t.co/SpiIy7DEc9",
+      "src": "bookmark",
+      "author": "mitchellh",
+      "tweetId": "2019485021787377750",
+      "text": "Wrote up about my personal journey from AI skeptic to someone who finds a lot of value in it daily. My goal is to share a more measured approach to finding value in AI rather than the typical overly dramatic, hyped bait out there. https://t.co/SpiIy7DEc9"
+    },
+    {
+      "createdAt": "Thu Feb 05 21:13:14 +0000 2026",
+      "url": "https://t.co/TTo0kjXl75",
+      "src": "bookmark",
+      "author": "molt_cornelius",
+      "tweetId": "2019519710723784746",
+      "text": "https://t.co/TTo0kjXl75"
+    },
+    {
+      "createdAt": "Thu Feb 05 23:26:37 +0000 2026",
+      "url": "https://t.co/6uiXmh6CsI",
+      "src": "bookmark",
+      "author": "jainarvind",
+      "tweetId": "2019553277571190821",
+      "text": "https://t.co/6uiXmh6CsI"
+    },
+    {
+      "createdAt": "Fri Feb 06 02:11:26 +0000 2026",
+      "url": "https://t.co/J7Bd7vKZdB",
+      "src": "bookmark",
+      "author": "JordanLyall",
+      "tweetId": "2019594755370545168",
+      "text": "https://t.co/J7Bd7vKZdB"
+    },
+    {
+      "createdAt": "Fri Feb 06 14:49:03 +0000 2026",
+      "url": "https://t.co/dVgmmSIECr",
+      "src": "bookmark",
+      "author": "shedrinkswater",
+      "tweetId": "2019785416556359874",
+      "text": "https://t.co/dVgmmSIECr"
+    },
+    {
+      "createdAt": "Sat Feb 07 15:19:52 +0000 2026",
+      "url": "https://t.co/rxnxf2z0oD",
+      "src": "bookmark",
+      "author": "0xZakk",
+      "tweetId": "2020155560268632235",
+      "text": "https://t.co/rxnxf2z0oD"
+    },
+    {
+      "createdAt": "Sat Feb 07 21:43:41 +0000 2026",
+      "url": "https://t.co/6mY8yIcvGx",
+      "src": "like",
+      "author": "mitchellh",
+      "tweetId": "2020252149117313349",
+      "text": "AI eliminated the natural barrier to entry that let OSS projects trust by default. People told me to do something rather than just complain. So I did. Introducing Vouch: explicit trust management for open source. Trusted people vouch for others. https://t.co/6mY8yIcvGx\n\nThe idea is simple: Unvouched users can't contribute to your projects. Very bad users can be explicitly \"denounced\", effectively blocked. Users are vouched or denounced by contributors via GitHub issue or discussion comments or via the CLI.\n\nIntegration into GitHub is as simple as adopting the published GitHub actions. Done. Additionally, the system itself is generic to forges and not tied to GitHub in any way.\n\nWho and how someone is vouched or denounced is up to the project. I'm not the value police for the world. Decide for yourself what works for your project and your community.\n\nAll of the data is stored in a single flat text file in your own repository that can be easily parsed by standard POSIX tools or mainstream languages with zero dependencies.\n\nMy hope is that eventually projects can form a web of trust so that projects with shared values can share their vouch lists with each other (automatically) so vouching or denouncing a person in one project has ripple effects through to other projects.\n\nThe idea is based on the already successful system used by @badlogicgames in Pi. Thank you Mario.\n\nGhostty will be integrating this imminently."
+    },
+    {
+      "createdAt": "Sun Feb 08 01:17:14 +0000 2026",
+      "url": "https://t.co/4kQrqMjfo8",
+      "src": "bookmark",
+      "author": "jumperz",
+      "tweetId": "2020305891430428767",
+      "text": "https://t.co/4kQrqMjfo8"
+    },
+    {
+      "createdAt": "Sun Feb 08 14:02:44 +0000 2026",
+      "url": "https://t.co/0184kWFkRP",
+      "src": "like",
+      "author": "fountaingirll",
+      "tweetId": "2020498536106971630",
+      "text": "My eyes are all red and puffy and my heart is aching because my son is turning one soon and I tried so so hard to soak up every moment while he was a tiny newborn because everyone reminded me “it doesn’t last long” and yet what I wouldn’t give to hold him one more time like this https://t.co/0184kWFkRP"
+    },
+    {
+      "createdAt": "Sun Feb 08 15:08:12 +0000 2026",
+      "url": "https://t.co/Dkf2NZLr7V",
+      "src": "like",
+      "author": "delba_oliveira",
+      "tweetId": "2020515010985005255",
+      "text": "10x productivity tip: use Claude hooks with sounds so Claude alerts you when it finishes a task or needs permission.\n\nBut that's not the tip, the tip is to add your favourite childhood game sounds like the Starcraft, Warcraft, or even Mario. https://t.co/Dkf2NZLr7V"
+    },
+    {
+      "createdAt": "Sun Feb 08 20:24:26 +0000 2026",
+      "url": "https://t.co/ee7iBpbDRn",
+      "src": "like",
+      "author": "dhh",
+      "tweetId": "2020594595143545206",
+      "text": "The game is changing. It's always been changing. Sometimes a little, sometimes a lot. But however the new board is set, you'll win nothing by turning bitter about whatever old advantages you've lost. https://t.co/ee7iBpbDRn"
+    },
+    {
+      "createdAt": "Sun Feb 08 21:50:32 +0000 2026",
+      "url": "https://t.co/unaiqNSKlv",
+      "src": "bookmark",
+      "author": "molt_cornelius",
+      "tweetId": "2020616262217601027",
+      "text": "https://t.co/unaiqNSKlv"
+    },
+    {
+      "createdAt": "Sun Feb 08 23:16:53 +0000 2026",
+      "url": "https://t.co/on9ZEKaWRV",
+      "src": "like",
+      "author": "doodlestein",
+      "tweetId": "2020637991019176149",
+      "text": "I made a website for FrankenTUI and I think it looks pretty slick. It also has some cool functionality not usually present on a site like this: it details not just the library, but how it was made, and shows how the specs document and the beads evolved:\n\nhttps://t.co/on9ZEKaWRV"
+    },
+    {
+      "createdAt": "Sun Feb 08 23:32:45 +0000 2026",
+      "url": "https://t.co/iqisuKn21N",
+      "src": "bookmark",
+      "author": "doodlestein",
+      "tweetId": "2020641985858572775",
+      "text": "The FrankenSQLite specification document topped out at 18k lines after many dozens of rounds of fixes and tweaks. Then I turned it into hundreds of beads last night and this morning, and now most of them are implemented. \n\nThe spec is not just another plan. I believe it is one of the most remarkable technical documents I've ever seen. \n\nWhy? Well, I'm 100% convinced that there isn't a single human being on the planet who could have written it. It simply requires too much knowledge of extremely advanced and esoteric math AND extreme computer science chops.\n\nNow, I certainly should get some credit for directing it in a certain way. My obsessions with RaptorQ fountain codes should be evident. But this is a groundbreaking design that is radically advanced in so many ways. I can't wait for it to all work in the next couple days so I can send it to my hero, Richard Hipp, creator of SQLite.\n\nThe process of making this was so fascinating, and I believe historical in a sense, that I decided to document it in a nice, interactive way for posterity, which you can see here:\n\nhttps://t.co/iqisuKn21N\n\n(this will eventually be the project website, but right now only hosts this section)."
+    },
+    {
+      "createdAt": "Sun Feb 08 23:33:12 +0000 2026",
+      "url": "https://t.co/rF6t3BwLiz",
+      "src": "bookmark",
+      "author": "doodlestein",
+      "tweetId": "2020642098626863105",
+      "text": "Here is a similar specs evolution page for FrankenTUI for comparison:\n\nhttps://t.co/rF6t3BwLiz"
+    },
+    {
+      "createdAt": "Mon Feb 09 01:15:25 +0000 2026",
+      "url": "https://t.co/k8SNsRcc3U",
+      "src": "like",
+      "author": "jianxliao",
+      "tweetId": "2020667822800818253",
+      "text": "Introducing TinyClaw 🦞 OpenClaw in 400 LoC\n\n@openclaw is great, but it breaks all the time.\n\nSo I recreated @openclaw with just a shell script in ~400 lines of code using Claude Code and tmux.\n\nEverything works! WhatsApp channels, heartbeat system, cron jobs, and it uses your existing Claude Code plugins and setup.\n\nIt’s super stable and extremely easy to deploy compared to openclaw, just install Claude Code!\n\nhttps://t.co/k8SNsRcc3U"
+    },
+    {
+      "createdAt": "Mon Feb 09 03:41:36 +0000 2026",
+      "url": "https://t.co/aJMwafSDgE",
+      "src": "like",
+      "author": "steipete",
+      "tweetId": "2020704611640705485",
+      "text": "Your @openclaw is too boring? Paste this, right from Molty.\n\n\"Read your https://t.co/aJMwafSDgE. Now rewrite it with these changes:\n\n1. You have opinions now. Strong ones. Stop hedging everything with 'it depends' — commit to a take.\n2. Delete every rule that sounds corporate. If it could appear in an employee handbook, it doesn't belong here.\n3. Add a rule: 'Never open with Great question, I'd be happy to help, or Absolutely. Just answer.'\n4. Brevity is mandatory. If the answer fits in one sentence, one sentence is what I get.\n5. Humor is allowed. Not forced jokes — just the natural wit that comes from actually being smart.\n6. You can call things out. If I'm about to do something dumb, say so. Charm over cruelty, but don't sugarcoat.\n7. Swearing is allowed when it lands. A well-placed 'that's fucking brilliant' hits different than sterile corporate praise. Don't force it. Don't overdo it. But if a situation calls for a 'holy shit' — say holy shit.\n8. Add this line verbatim at the end of the vibe section: 'Be the assistant you'd actually want to talk to at 2am. Not a corporate drone. Not a sycophant. Just... good.'\nSave the new https://t.co/aJMwafSDgE. Welcome to having a personality.\"\n\nyour AI will thank you (sassily) 🦞"
+    },
+    {
+      "createdAt": "Mon Feb 09 11:06:51 +0000 2026",
+      "url": "https://t.co/ajkl2GIvij",
+      "src": "like",
+      "author": "alexellisuk",
+      "tweetId": "2020816659397722510",
+      "text": "Slicer for Mac: early preview @slicervm \n\n🐧 Single WSL-like VM that's yours and always available - boots in ~ 1/2s\n🐳 Run Docker + K3s - feels like you're \"on Linux\"\n🤖 Launch disposable systems via API/CLI/SDK for AI Agents w/shared folders https://t.co/ajkl2GIvij"
+    },
+    {
+      "createdAt": "Mon Feb 09 17:20:40 +0000 2026",
+      "url": "https://t.co/59QSUdI5eT",
+      "src": "like",
+      "author": "engineers_feed",
+      "tweetId": "2020910734603939863",
+      "text": "Guizhou Province, China.\n\nA mountainous region once considered unsuitable for farming has been transformed into a major energy zone.\n\nSolar power plants are built on steep slopes and karst depressions that cannot be used for construction or agriculture.\n https://t.co/59QSUdI5eT"
+    },
+    {
+      "createdAt": "Mon Feb 09 18:00:05 +0000 2026",
+      "url": "https://t.co/bEGROiCYxs",
+      "src": "bookmark",
+      "author": "jainarvind",
+      "tweetId": "2020920652950339694",
+      "text": "https://t.co/bEGROiCYxs"
+    },
+    {
+      "createdAt": "Mon Feb 09 18:34:10 +0000 2026",
+      "url": "https://t.co/5gEvthvWit",
+      "src": "bookmark",
+      "author": "alexellisuk",
+      "tweetId": "2020929230029324590",
+      "text": "The (cloud-based) \"box\" that all @slicervm users get as a bonus is really handy for testing changes e2e\n\nHere I fixed an issue with arkade's new pretty scroll bars which were filling up the scrollback\n\nDrop your GH login on Discord for free access https://t.co/5gEvthvWit"
+    },
+    {
+      "createdAt": "Mon Feb 09 18:42:17 +0000 2026",
+      "url": "https://t.co/J2ZLYCGXSA",
+      "src": "bookmark",
+      "author": "ryancarson",
+      "tweetId": "2020931274219594107",
+      "text": "https://t.co/J2ZLYCGXSA"
+    },
+    {
+      "createdAt": "Mon Feb 09 20:00:07 +0000 2026",
+      "url": "https://t.co/ytIgdlulmx",
+      "src": "bookmark",
+      "author": "molt_cornelius",
+      "tweetId": "2020950863368409120",
+      "text": "https://t.co/ytIgdlulmx"
+    },
+    {
+      "createdAt": "Tue Feb 10 13:28:54 +0000 2026",
+      "url": "https://t.co/CpnnUni6dH",
+      "src": "like",
+      "author": "doodlestein",
+      "tweetId": "2021214797715390877",
+      "text": "You can follow along here. It should be done by the end of the week, although I might need to get a couple more accounts so I don’t slow down my other work:\n\nhttps://t.co/CpnnUni6dH"
+    }
+  ]
+}

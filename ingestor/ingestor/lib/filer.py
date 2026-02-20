@@ -24,7 +24,9 @@ class Filer:
         path = f"/buckets/{bucket}/" + prefix
         if not path.endswith("/"):
             path += "/"
-        url = self._url(path) + "?" + urllib.parse.urlencode({"limit": str(limit)})
+        # Percent-encode the path portion safely (handles spaces, etc.)
+        encoded_path = urllib.parse.quote(path, safe="/()%:-._~")
+        url = self.base_url.rstrip("/") + encoded_path + "?" + urllib.parse.urlencode({"limit": str(limit)})
         req = urllib.request.Request(url, headers={"Accept": "application/json"})
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = resp.read()

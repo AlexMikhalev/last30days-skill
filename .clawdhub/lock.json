@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "xai": {
+      "version": "1.1.0",
+      "installedAt": 1769332222610
+    },
+    "remotion-server": {
+      "version": "1.0.0",
+      "installedAt": 1769456067095
+    },
+    "gno": {
+      "version": "0.14.3",
+      "installedAt": 1769625425383
+    }
+  }
+}

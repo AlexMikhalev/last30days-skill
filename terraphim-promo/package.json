@@ -1,0 +1,23 @@
+{
+  "name": "terraphim-promo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@remotion/cli": "4.0.410",
+    "@remotion/tailwind": "4.0.410",
+    "remotion": "4.0.410"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.9",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3"
+  }
+}

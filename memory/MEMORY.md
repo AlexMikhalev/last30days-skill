@@ -1,0 +1,1 @@
+/home/alex/clawd/MEMORY.md

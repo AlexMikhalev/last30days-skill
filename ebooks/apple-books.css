@@ -1,0 +1,61 @@
+/* Apple Books-friendly EPUB CSS */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, "Georgia", serif;
+  line-height: 1.45;
+  font-size: 1em;
+  text-rendering: optimizeLegibility;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+h1, h2, h3 {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, serif;
+  line-height: 1.2;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 { font-size: 1.6em; margin: 0 0 0.8em 0; }
+h2 { font-size: 1.3em; margin: 1.2em 0 0.6em 0; }
+h3 { font-size: 1.15em; margin: 1.0em 0 0.5em 0; }
+
+p {
+  margin: 0 0 0.8em 0;
+}
+
+ul, ol {
+  margin: 0.2em 0 0.9em 1.2em;
+}
+li { margin: 0.15em 0; }
+
+blockquote {
+  margin: 0.9em 0;
+  padding: 0.2em 0.9em;
+  border-left: 3px solid rgba(0,0,0,0.25);
+}
+
+code, pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.95em;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0.9em 0;
+  padding: 0.7em 0.9em;
+  background: rgba(0,0,0,0.05);
+  border-radius: 8px;
+}
+
+a { word-break: break-word; }
+
+/* Avoid ugly first-page gaps caused by empty paragraphs */
+* + p:empty { display:none; }
+
+/* Page break behavior */
+hr { page-break-after: avoid; }
