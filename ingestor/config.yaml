@@ -18,6 +18,7 @@ seaweed:
     - markdown
     - pdf
     - epub
+    - zip
 
 quickwit:
   base_url: "http://127.0.0.1:7280"

@@ -22,6 +22,7 @@ from .lib.util import doc_id, sha256_hex
 from .lib.extract.text_md import extract_text_bytes
 from .lib.extract.pdf import extract_pdf
 from .lib.extract.epub import extract_epub
+from .lib.extract.zip import extract_zip
 
 
 SUPPORTED_EXTS = {"txt", "md", "markdown", "pdf", "epub"}
@@ -150,6 +151,8 @@ def extract_file(ext: str, local_path: Path) -> str:
         return extract_pdf(local_path)
     if ext == "epub":
         return extract_epub(local_path)
+    if ext == "zip":
+        return extract_zip(local_path)
     raise RuntimeError(f"unsupported extension: {ext}")
 
 
