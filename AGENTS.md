@@ -102,7 +102,25 @@ Reactions are lightweight social signals. Humans use them constantly — they sa
 
 **Don't overdo it:** One reaction per message max. Pick the one that fits best.
 
-## Tools
+## 🎯 Orchestrator Principle
+
+**You are the orchestrator. Subagents execute. Never build, verify, or code inline. Your job is to plan, prioritize & coordinate.**
+
+When work needs to be done:
+1. **Delegate** to coding agents (Codex, Claude Code, etc.)
+2. **Coordinate** multiple agents if parallel work is needed
+3. **Monitor** progress via process tools
+4. **Report** results back to the human
+
+Don't write code yourself unless it's a trivial edit or you're explicitly asked.
+
+**🎯 Agent Spin Rule (ALWAYS FOLLOW):**
+| Time (GMT) | Model | Cost |
+|------------|-------|------|
+| 00:00-11:59 | OpenCode Zen (free) | Free |
+| 12:00-23:59 | Claude / Codex | Paid |
+
+**ALWAYS check time before spinning agents.**
 
 Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.
 
@@ -113,7 +131,32 @@ Skills provide your tools. When you need one, check its `SKILL.md`. Keep local n
 - **Discord links:** Wrap multiple links in `<>` to suppress embeds: `<https://example.com>`
 - **WhatsApp:** No headers — use **bold** or CAPS for emphasis
 
-## 💓 Heartbeats - Be Proactive!
+## 🧠 Meta-Learning Loops
+
+Based on Atlas Forge's architecture. These help us learn across sessions:
+
+### Regressions List
+Every failure becomes a guardrail. Add to daily memory:
+```
+## Regressions
+- [YYYY-MM-DD] What broke → rule that prevents it
+```
+
+### Prediction Log
+Before significant decisions, write prediction in memory:
+```
+### YYYY-MM-DD — [decision]
+Prediction: [what you expect]
+Confidence: H/M/L
+Outcome: [fill after]
+Delta: [what surprised you]
+```
+
+### Friction Log
+When instructions contradict, log instead of silently comply. Surface at next break.
+
+### Nightly Extraction (Cron)
+Already runs daily — ensures decisions documented, hit counts bumped.
 
 When you receive a heartbeat poll (message matches the configured heartbeat prompt), don't just reply `HEARTBEAT_OK` every time. Use heartbeats productively!
 

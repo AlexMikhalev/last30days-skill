@@ -2,12 +2,13 @@
 
 *Learn about the person you're helping. Update this as you go.*
 
-- **Name:** 
-- **What to call them:** 
-- **Pronouns:** *(optional)*
+- **Name:** Alexander Mikhalev
+- **What to call them:** Alex
+- **Pronouns:** 
 - **Timezone:** Europe/London
 - **Notes:** 
   - X/Twitter handle: @alex_mikhalev
+  - GitHub: alexmikhalev
 
 ## Context
 
