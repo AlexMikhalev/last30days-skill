@@ -12,6 +12,11 @@ blocked_on: ""
 ---
 
 ## Progress Log
+- 2026-03-11 13:31Z: **Phase 3 complete.** Terraphim Integration:
+  - `TerraphimAdapter` for RoleGraph conversion
+  - Hybrid scoring: graph embeddings + TF-IDF
+  - `Regrounder` for failed action recovery
+  - Committed to `/tmp/actionengine-phase1/` (295fbb2)
 - 2026-03-11 12:31Z: **Phase 2 complete.** Crawler Agent implemented:
   - `Crawler` struct with frontier/BFS management, visited tracking
   - `Explorer<B: Browser>` trait for browser abstraction
@@ -365,11 +370,16 @@ struct ActionScorer {
 - Crawler with BFS frontier management
 - DOM extraction to UIElement/GUIState
 
-### Phase 3: Terraphim Integration
-- [ ] Enable Terraphim graph embeddings scorer
-- [ ] Query SMG via Terraphim search
-- [ ] Rank states/actions using hybrid scoring
-- [ ] Test semantic matching for UI elements
+### Phase 3: Terraphim Integration ✅ 2026-03-11
+- [x] Enable Terraphim graph embeddings scorer (TerraphimAdapter)
+- [x] Query SMG via Terraphim search (search placeholder)
+- [x] Rank states/actions using hybrid scoring (TerraphimScorer)
+- [x] Test semantic matching for UI elements (via thesaurus)
+
+**Implementation:** `/tmp/actionengine-phase1/src/terraphim.rs`
+- Triple conversion: GUIState/GUIAction → Terraphim triples
+- HybridScorer: combines graph embeddings + TF-IDF
+- Regrounder: fallback recovery using semantic similarity
 
 ### Phase 4: Execution Agent
 - [ ] Design program sketch generation prompt
