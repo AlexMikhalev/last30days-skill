@@ -12,6 +12,12 @@ blocked_on: ""
 ---
 
 ## Progress Log
+- 2026-03-11 12:31Z: **Phase 2 complete.** Crawler Agent implemented:
+  - `Crawler` struct with frontier/BFS management, visited tracking
+  - `Explorer<B: Browser>` trait for browser abstraction
+  - `StateExtractor` for DOM→GUIState conversion
+  - `Browser` trait ready for Playwright/Puppeteer/OpenClaw integration
+  - Committed to `/tmp/actionengine-phase1/` (0a3f9ef)
 - 2026-03-11 09:19Z: **Phase 1 complete.** Implemented SMG data structures in Rust:
   - Core types: GUIState, UIElement, GUIAction, Selectors, ElementState, BoundingBox, Viewport
   - StateMachineGraph with HashMap storage + Terraphim integration placeholders
@@ -347,12 +353,17 @@ struct ActionScorer {
 - `src/thesaurus.rs` - UIThesaurus with action/element/field synonyms
 - `src/scorer.rs` - ActionScorer with TF-IDF hybrid scoring
 
-### Phase 2: Crawling Agent
-- [ ] Build website explorer
-- [ ] Extract page states → Terraphim nodes
-- [ ] Extract actions → Terraphim edges
-- [ ] Build UI thesaurus (button ↔ clickable ↔ submit)
-- [ ] Populate SMG with discovered graph
+### Phase 2: Crawling Agent ✅ 2026-03-11
+- [x] Build website explorer (Explorer<B: Browser> trait)
+- [x] Extract page states → GUIState (StateExtractor)
+- [x] Extract actions → GUIAction (action discovery via DOM)
+- [x] Build UI thesaurus (already in Phase 1)
+- [x] Populate SMG with discovered graph (Crawler with frontier)
+
+**Implementation:** `/tmp/actionengine-phase1/src/crawler.rs`, `explorer.rs`, `extractor.rs`
+- Browser trait for abstraction (Playwright/Puppeteer/OpenClaw)
+- Crawler with BFS frontier management
+- DOM extraction to UIElement/GUIState
 
 ### Phase 3: Terraphim Integration
 - [ ] Enable Terraphim graph embeddings scorer
