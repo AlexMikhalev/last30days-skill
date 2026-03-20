@@ -1,0 +1,10 @@
+{
+  "role": "Learning Capture",
+  "synonyms": [
+    ["lesson", "learning", "insight", "takeaway"],
+    ["mistake", "failure", "postmortem", "prevention"],
+    ["preference", "style", "rule", "habit"],
+    ["memory", "recall", "semantic search"],
+    ["decision", "context", "why"]
+  ]
+}

@@ -1,3 +1,29 @@
 skills/last30days-skill/scripts/__pycache__
 skills/last30days-skill/scripts/lib/__pycache__
 skills/last30days-skill/tests/__pycache__
+
+# Rust build artifacts
+target/
+Cargo.lock
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+
+# Embedded git repos (should be submodules)
+/autocontext/
+/claude-agents/
+/pi-serini/
+/redis-infer/
+/terraphim-search-agent/
+/time-agent/
+/zestic-ai-codex-skills/
+
+# Temporary/generated
+*.html
+/test-task/
+/1agents.sh

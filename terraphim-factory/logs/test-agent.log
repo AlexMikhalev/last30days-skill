@@ -1,0 +1,6 @@
+[2026-03-04T17:38:20+00:00] === Nightwatch started for test-agent ===
+[2026-03-04T17:38:20+00:00] Command: echo "hello" && sleep 1
+[2026-03-04T17:38:20+00:00] Starting agent: test-agent
+"hello" && sleep 1
+[2026-03-04T17:38:20+00:00] Agent completed successfully in 0s
+[2026-03-04T17:38:20+00:00] Restarting in 5s...

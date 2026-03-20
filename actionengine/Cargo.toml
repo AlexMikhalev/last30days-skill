@@ -1,0 +1,40 @@
+[package]
+name = "actionengine"
+version = "0.1.0"
+edition = "2021"
+authors = ["OpenClaw Team"]
+description = "State Machine Memory for GUI Agents - Terraphim-Powered ActionEngine"
+license = "Apache-2.0"
+
+[dependencies]
+# Terraphim crates - using semver constraints for compatibility
+terraphim_rolegraph = { path = "../terraphim-ai/crates/terraphim_rolegraph", version = "1.4.10" }
+terraphim_types = { path = "../terraphim-ai/crates/terraphim_types", version = "1.4.10" }
+terraphim_automata = { path = "../terraphim-ai/crates/terraphim_automata", version = "1.0.0" }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async runtime
+tokio = { version = "1.27", features = ["fs", "macros", "rt-multi-thread"] }
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+log = "0.4"
+anyhow = "1.0"
+
+# Hash maps
+ahash = { version = "0.8", features = ["serde"] }
+
+# Optional scoring dependencies
+tantivy = { version = "0.22", optional = true }
+
+[features]
+default = []
+scoring = ["tantivy"]
+
+[dev-dependencies]
+tempfile = "3"
