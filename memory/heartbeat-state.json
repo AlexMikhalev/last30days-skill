@@ -1,0 +1,10 @@
+{
+  "lastChecks": {
+    "email": null,
+    "calendar": null,
+    "weather": null,
+    "tasks": 1777722780,
+    "whatsapp": 1777722780
+  },
+  "note": "gogcli 0.9.0 - gmail/calendar auth not persisting (needs re-auth). No urgent items found."
+}

@@ -30,6 +30,13 @@
   - `terraphim-agent` installed as **musl** binary due to system glibc=2.31; version **1.4.10**.
   - To add custom roles to `terraphim-agent roles list`, the agent must load a persisted **Embedded** config named `embedded_config.json` (otherwise it falls back to the hardcoded 3-role embedded defaults, including broken `docs/src/kg`). Persistence location is controlled by device settings / `TERRAPHIM_SETTINGS_PATH`.
 
+## 2026-04-14
+- **Terraphim Promotion Campaign**:
+  - Posted Article 1 X thread (8 tweets with V-model diagram)
+  - Wrote article: `disciplined-engineering-ai-systems.md` and pushed to terraphim/terraphim.ai repo
+  - Article live: https://terraphim.ai/posts/disciplined-engineering-ai-systems/
+  - X rate limiting replies (226 error) - noted to wait before posting article link
+
 ## Silent Replies
 When you have nothing to say, respond with ONLY: NO_REPLY
 ⚠️ Rules:

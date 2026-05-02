@@ -117,7 +117,48 @@ else
 fi
 rm -f "$TMP2"
 
-# 3) Optional: reindex with gno (fast enough for ~/clawd scale)
+# 3) Timeline (home / "Following" chronological feed — best for "since last run")
+TMP3=$(mktemp)
+if run_bird "bird home --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --count 100 --following --json > '$TMP3'"; then
+  # home returns a flat list (not wrapped in {'tweets':[...]}), handle both shapes
+  python3 - "$TMP3" "$OUTDIR/timeline.jsonl" "$last_run_epoch" <<'PY'
+import json, sys, email.utils
+path_in = sys.argv[1]
+path_out = sys.argv[2]
+last_run = int(sys.argv[3])
+
+with open(path_in) as f:
+    raw = json.load(f)
+
+tweets = raw if isinstance(raw, list) else raw.get('tweets', [])
+
+def parse_created_at(s):
+    if not s:
+        return None
+    try:
+        return int(email.utils.parsedate_to_datetime(s).timestamp())
+    except Exception:
+        return None
+
+new = 0
+with open(path_out, 'a') as out:
+    for t in tweets:
+        if not isinstance(t, dict):
+            continue
+        ts = parse_created_at(t.get('createdAt') or t.get('created_at'))
+        if ts is not None and ts >= last_run:
+            t['_ingest_kind'] = 'timeline'
+            out.write(json.dumps(t, ensure_ascii=False) + '\n')
+            new += 1
+
+print(f"timeline: appended {new}")
+PY
+else
+  echo "timeline: bird home failed" >&2
+fi
+rm -f "$TMP3"
+
+# 4) Optional: reindex with gno (fast enough for ~/clawd scale)
 if command -v gno >/dev/null 2>&1; then
   (cd "$WORKDIR" && gno index --yes) || echo "gno index failed (ok to ignore)" >&2
 fi
