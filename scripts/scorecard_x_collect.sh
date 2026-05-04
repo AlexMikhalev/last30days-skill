@@ -145,7 +145,7 @@ for p in top3:
 
 # ── build result ─────────────────────────────────────────────────────────
 result = {
-    'generated_at':     datetime.now(datetime.UTC).isoformat().replace('+00:00', 'Z'),
+    'generated_at':     datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
     'this_week':        tw,
     'week_ago':         wago,
     'trends': {

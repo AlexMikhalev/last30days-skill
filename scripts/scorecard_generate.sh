@@ -1,0 +1,299 @@
+#!/usr/bin/env bash
+# scorecard_generate.sh
+# Phase 3: Combined scorecard — X + Reddit metrics → markdown + Gitea PR
+#
+# Reads:  /tmp/scorecard/metrics_x.json     (from scorecard_x_collect.sh)
+#         /tmp/scorecard/metrics_reddit.json (from scorecard_reddit_collect.sh)
+# Creates: Gitea PR on terraphim/cto-executive-system
+#
+# Usage:   ./scorecard_generate.sh [--dry-run]
+set -euo pipefail
+
+# Load Gitea token from ~/.zshrc if not in environment
+if [[ -z "${GITEA_TOKEN:-}" ]] && [[ -f ~/.zshrc ]]; then
+    # shellcheck disable=SC1090
+    source ~/.zshrc 2>/dev/null || true
+fi
+
+OUTDIR="${OUTDIR:-/tmp/scorecard}"
+WORKDIR="${WORKDIR:-/home/alex/clawd}"
+DRY_RUN="${1:-}"
+GITEA_URL="${GITEA_URL:-https://git.terraphim.cloud}"
+GITEA_TOKEN="${GITEA_TOKEN:-}"
+GITEA_REPO="terraphim/cto-executive-system"
+SCORECARD_DIR="scorecards/content-marketing"
+STAMP=$(date +%Y-%m-%d)
+WEEK_NUM=$(date +%V)
+YEAR=$(date +%Y)
+
+info()  { echo "[INFO]  $*"; }
+err()   { echo "[ERROR] $*" >&2; exit 1; }
+dry()   { [[ "$DRY_RUN" == "--dry-run" ]] && echo "[DRY]  $*"; }
+
+[[ -z "$GITEA_TOKEN" ]] && err "GITEA_TOKEN not set — source ~/.zshrc first"
+mkdir -p "$OUTDIR"
+
+# ── collect metrics ────────────────────────────────────────────────────────────
+
+info "Collecting X metrics..."
+WORKDIR="$WORKDIR" OUTDIR="$OUTDIR" bash "$WORKDIR/scripts/scorecard_x_collect.sh" \
+  > "$OUTDIR/metrics_x.json" 2>&1
+
+info "Collecting Reddit metrics..."
+OUTDIR="$OUTDIR" bash "$WORKDIR/scripts/scorecard_reddit_collect.sh" \
+  > "$OUTDIR/metrics_reddit.json" 2>&1
+
+# ── render scorecard + PR body via Python (single source of truth) ─────────────────
+
+SCORECARD_TMP="$OUTDIR/content-marketing-${YEAR}-W${WEEK_NUM}.md"
+
+python3 - "$OUTDIR/metrics_x.json" "$OUTDIR/metrics_reddit.json" \
+          "$STAMP" "$YEAR" "$WEEK_NUM" "$SCORECARD_TMP" <<'PYEOF'
+import json, sys
+
+x_json = sys.argv[1]
+r_json = sys.argv[2]
+stamp  = sys.argv[3]
+year   = sys.argv[4]
+week   = sys.argv[5]
+sc_path= sys.argv[6]
+
+x = json.load(open(x_json))
+r = json.load(open(r_json))
+
+tw_x  = x.get('this_week', {})
+wa_x  = x.get('week_ago', {})
+tr_x  = x.get('trends', {})
+top3_x= x.get('top3', [])
+
+tw_r  = r.get('this_week', {})
+wa_r  = r.get('week_ago', {})
+tr_r  = r.get('trends', {})
+top3_r= r.get('top3', [])
+
+x_eng  = tw_x.get('engagement', 0)
+xr_eng = tw_r.get('score', 0) + tw_r.get('comments', 0)
+xa_eng = wa_x.get('engagement', 0)
+xra_eng= wa_r.get('score', 0) + wa_r.get('comments', 0)
+comb   = x_eng + xr_eng
+comb_wa= xa_eng + xra_eng
+cmp_tr = '↑' if comb > comb_wa else ('↓' if comb < comb_wa else '→')
+
+def posts_x(posts):
+    if not posts: return "*No X posts this week.*\n"
+    lines = []
+    for i, p in enumerate(posts, 1):
+        txt = p['text'][:90].replace('\n', ' ')
+        lines.append(f"{i}. [{txt}…]({p['url']}) — ❤️{p['likes']} 🔁{p['retweets']} 💬{p['replies']}")
+    return '\n'.join(lines) + '\n'
+
+def posts_r(posts):
+    if not posts: return "*No Reddit posts this week.*\n"
+    lines = []
+    for i, p in enumerate(posts, 1):
+        lines.append(f"{i}. [{p['title'][:80]}]({p['url']}) — r/{p['subreddit']} ↑{p['score']} 💬{p['comments']}")
+    return '\n'.join(lines) + '\n'
+
+sc = f"""# Content Marketing Scorecard — {year}-W{week:0>2}
+
+**Generated**: {stamp} (auto-generated — edits via Gitea PR)
+**Status**: `needs-review`
+
+---
+
+## X/Twitter — Weekly Summary
+
+| Metric | This Week | Last Week | Trend | Target |
+|--------|-----------|-----------|-------|--------|
+| Posts published | {tw_x.get('count',0)} | {wa_x.get('count',0)} | {tr_x.get('count','—')} | ≥3/week |
+| Likes | {tw_x.get('likes',0)} | {wa_x.get('likes',0)} | {tr_x.get('likes','—')} | |
+| Retweets | {tw_x.get('retweets',0)} | {wa_x.get('retweets',0)} | {tr_x.get('retweets','—')} | |
+| Replies | {tw_x.get('replies',0)} | {wa_x.get('replies',0)} | {tr_x.get('replies','—')} | |
+| Proxy engagement | {x_eng} | {xa_eng} | {tr_x.get('engagement','—')} | |
+| Avg. engagement / post | {tw_x.get('avg_engagement',0)} | {wa_x.get('avg_engagement',0)} | — | |
+
+### Top posts this week
+{posts_x(top3_x)}
+## Reddit — Weekly Summary
+
+| Metric | This Week | Last Week | Trend | Target |
+|--------|-----------|-----------|-------|--------|
+| Posts published | {tw_r.get('count',0)} | {wa_r.get('count',0)} | {tr_r.get('count','—')} | ≥2/week |
+| Total score | {tw_r.get('score',0)} | {wa_r.get('score',0)} | {tr_r.get('score','—')} | |
+| Total comments | {tw_r.get('comments',0)} | {wa_r.get('comments',0)} | {tr_r.get('comments','—')} | |
+| Avg. score / post | {tw_r.get('avg_score',0)} | {wa_r.get('avg_score',0)} | — | |
+
+### Top posts this week
+{posts_r(top3_r)}
+## Cross-Platform Summary
+
+| Metric | This Week | Last Week | Trend |
+|--------|-----------|-----------|-------|
+| Combined engagement | {comb} | {comb_wa} | {cmp_tr} |
+
+---
+
+## Gitea PR
+
+**Reviewer action**: `/approve` to merge, or comment with feedback.
+
+*Auto-generated by Kairo | {stamp}*
+"""
+
+with open(sc_path, 'w') as f:
+    f.write(sc)
+print(json.dumps({'scorecard': sc, 'status': 'ok'}))
+PYEOF
+
+info "Scorecard rendered."
+
+# ── dry run ──────────────────────────────────────────────────────────────────
+
+if [[ "$DRY_RUN" == "--dry-run" ]]; then
+    dry "Would create Gitea PR:"
+    dry "  Branch: scorecard/${YEAR}-W${WEEK_NUM}"
+    dry "  File:  $SCORECARD_TMP"
+    dry "---"
+    cat "$SCORECARD_TMP"
+    exit 0
+fi
+
+# ── git clone + branch + push ─────────────────────────────────────────────────
+
+CLONE_DIR=$(mktemp -d)
+BRANCH="scorecard/${YEAR}-W${WEEK_NUM}"
+GIT_URL="https://${GITEA_TOKEN}@git.terraphim.cloud/${GITEA_REPO}.git"
+
+info "Cloning $GITEA_REPO ..."
+git clone --branch main "$GIT_URL" "$CLONE_DIR" 2>&1 | tail -1
+
+cd "$CLONE_DIR"
+git config user.email "kimiko@terraphim.ai"
+git config user.name "Kimiko (AI Agent)"
+
+info "Creating branch $BRANCH ..."
+git checkout -b "$BRANCH"
+
+mkdir -p "$SCORECARD_DIR"
+cp "$SCORECARD_TMP" "$SCORECARD_DIR/${YEAR}-W${WEEK_NUM}.md"
+git add "$SCORECARD_DIR/${YEAR}-W${WEEK_NUM}.md"
+git commit -m "Content Marketing Scorecard ${YEAR}-W${WEEK_NUM}
+
+Auto-generated by Kairo | $STAMP"
+
+info "Pushing branch $BRANCH ..."
+git push origin "$BRANCH" 2>&1 | tail -3
+
+# ── create PR via Python ────────────────────────────────────────────────────
+
+python3 - "$GITEA_URL" "$GITEA_TOKEN" "$GITEA_REPO" "$BRANCH" "$SCORECARD_TMP" "$YEAR" "$WEEK_NUM" <<'PYEOF'
+import json, sys, urllib.request
+
+url      = sys.argv[1]
+token    = sys.argv[2]
+repo     = sys.argv[3]
+branch   = sys.argv[4]
+sc_path  = sys.argv[5]
+year     = sys.argv[6]
+week     = sys.argv[7]
+
+x   = json.load(open('/tmp/scorecard/metrics_x.json'))
+r   = json.load(open('/tmp/scorecard/metrics_reddit.json'))
+
+tw_x  = x.get('this_week', {})
+wa_x  = x.get('week_ago', {})
+tr_x  = x.get('trends', {})
+
+tw_r  = r.get('this_week', {})
+wa_r  = r.get('week_ago', {})
+tr_r  = r.get('trends', {})
+
+x_eng  = tw_x.get('engagement', 0)
+xr_eng = tw_r.get('score', 0) + tw_r.get('comments', 0)
+xa_eng = wa_x.get('engagement', 0)
+
+pr_body = f"""## Content Marketing Scorecard {year}-W{week:0>2}
+
+### X/Twitter
+| Metric | This Week | Last Week | Trend |
+|--------|-----------|-----------|-------|
+| Posts published | {tw_x.get('count',0)} | {wa_x.get('count',0)} | {tr_x.get('count','—')} |
+| Likes | {tw_x.get('likes',0)} | {wa_x.get('likes',0)} | {tr_x.get('likes','—')} |
+| Retweets | {tw_x.get('retweets',0)} | {wa_x.get('retweets',0)} | {tr_x.get('retweets','—')} |
+| Replies | {tw_x.get('replies',0)} | {wa_x.get('replies',0)} | {tr_x.get('replies','—')} |
+| Proxy engagement | {x_eng} | {xa_eng} | {tr_x.get('engagement','—')} |
+
+### Reddit
+| Metric | This Week | Last Week | Trend |
+|--------|-----------|-----------|-------|
+| Posts published | {tw_r.get('count',0)} | {wa_r.get('count',0)} | {tr_r.get('count','—')} |
+| Total score | {tw_r.get('score',0)} | {wa_r.get('score',0)} | {tr_r.get('score','—')} |
+| Total comments | {tw_r.get('comments',0)} | {wa_r.get('comments',0)} | {tr_r.get('comments','—')} |
+
+### Reviewer action
+`/approve` to merge this scorecard into main. Comment with feedback if changes needed.
+"""
+
+payload = json.dumps({
+    "title": f"Content Marketing Scorecard {year}-W{week:0>2}",
+    "body":  pr_body,
+    "head":  branch,
+    "base":  "main"
+}).encode()
+
+req = urllib.request.Request(
+    f"{url}/api/v1/repos/{repo}/pulls",
+    data=payload,
+    headers={
+        "Authorization": f"token {token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    },
+    method="POST"
+)
+
+try:
+    with urllib.request.urlopen(req) as resp:
+        result = json.loads(resp.read())
+        print(json.dumps({
+            "ok": True,
+            "pr_url": result.get("html_url",""),
+            "pr_num": result.get("number","")
+        }))
+except urllib.error.HTTPError as e:
+    body = e.read().decode()
+    print(json.dumps({"ok": False, "error": str(e), "body": body}))
+PYEOF
+
+info "PR created."
+
+# ── add labels ──────────────────────────────────────────────────────────────
+
+PR_CHECK=$(python3 -c "
+import json, urllib.request
+req = urllib.request.Request(
+    '${GITEA_URL}/api/v1/repos/${GITEA_REPO}/pulls?state=open&head=terraphim:${BRANCH#scorecard/}',
+    headers={'Authorization': 'token ${GITEA_TOKEN}'}
+)
+with urllib.request.urlopen(req) as r: data=json.loads(r.read())
+print(data[0]['number'] if data else '')
+" 2>/dev/null)
+
+if [[ -n "${PR_CHECK:-}" ]]; then
+    for label in scorecard needs-review; do
+        curl -s -X POST \
+          -H "Authorization: token ${GITEA_TOKEN}" \
+          -H "Content-Type: application/json" \
+          "${GITEA_URL}/api/v1/repos/${GITEA_REPO}/issues/${PR_CHECK}/labels" \
+          -d "[\"$label\"]" > /dev/null 2>&1
+        info "Label added: $label"
+    done
+fi
+
+rm -rf "$CLONE_DIR"
+
+echo ""
+echo "=== RESULT ==="
+echo "Week:   ${YEAR}-W${WEEK_NUM}"
+echo "File:   scorecards/content-marketing/${YEAR}-W${WEEK_NUM}.md"
+echo ""
