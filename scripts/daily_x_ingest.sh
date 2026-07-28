@@ -117,7 +117,16 @@ else
 fi
 rm -f "$TMP2"
 
-# 3) Optional: reindex with gno (fast enough for ~/clawd scale)
+# 3) Own tweets
+TMP3=$(mktemp)
+if run_bird "bird user-tweets alex_mikhalev --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --max-pages 5 --json > '$TMP3'"; then
+  filter_to_jsonl "tweets" "$TMP3" "$OUTDIR/tweets.jsonl"
+else
+  echo "tweets: bird command failed" >&2
+fi
+rm -f "$TMP3"
+
+# 4) Optional: reindex with gno (fast enough for ~/clawd scale)
 if command -v gno >/dev/null 2>&1; then
   (cd "$WORKDIR" && gno index --yes) || echo "gno index failed (ok to ignore)" >&2
 fi

@@ -2,168 +2,166 @@
 set -euo pipefail
 
 # Daily X/Twitter ingest using bird -> local JSONL files -> (optional) gno reindex.
-# Designed to be safe to run repeatedly.
+# Designed to be safe to run repeatedly without duplicates.
+#
+# Key improvements:
+# - Saves raw bird output to data/twitter/raw/YYYY-MM-DD/ before processing
+# - Deduplicates by tweet ID against existing JSONL to avoid re-adding on re-runs
+# - Preserves all fields from the original tweet object (media, quotedTweet, etc.)
+# - Uses ISO8601 in state file for better human readability
 
 WORKDIR="/home/alex/clawd"
 OUTDIR="$WORKDIR/data/twitter"
+RAWDIR="$OUTDIR/raw"
 STATE="$OUTDIR/state.json"
 TZ="Europe/London"
 
-# Ensure Homebrew tools (e.g., newer cmake) are available for gno/node-llama-cpp builds.
 export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 
-mkdir -p "$OUTDIR"
+mkdir -p "$OUTDIR" "$RAWDIR"
 
-# State
+# ── State ──────────────────────────────────────────────────────────────────
+now_epoch=$(date +%s)
+now_iso=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
 if [[ -f "$STATE" ]]; then
-  last_run_epoch=$(python3 -c 'import json;print(json.load(open("'$STATE'")).get("last_run_epoch",0))')
+  last_run_epoch=$(python3 -c "import json; print(json.load(open('$STATE')).get('last_run_epoch', 0))")
 else
   last_run_epoch=0
 fi
-now_epoch=$(date +%s)
 
 write_state() {
   python3 - <<PY
-import json, time
-p="$STATE"
-obj={"last_run_epoch": $now_epoch}
-open(p,'w').write(json.dumps(obj, indent=2, sort_keys=True))
-print(p)
+import json
+obj = {"last_run_epoch": $now_epoch, "last_run_iso": "$now_iso"}
+open("$STATE", "w").write(json.dumps(obj, indent=2, sort_keys=True))
 PY
 }
 
-# Helper: normalize tweet objects into JSONL lines, filtering by createdAt when available.
-filter_to_jsonl() {
+# ── Deduplication helper ────────────────────────────────────────────────────
+# Loads existing tweet IDs from a JSONL into a set (ram-efficient for typical sizes).
+load_ids() {
+  local jsonl="$1"
+  python3 - <<PY
+import json
+ids = set()
+try:
+  with open("$jsonl") as f:
+    for line in f:
+      try:
+        d = json.loads(line)
+        if "id" in d:
+          ids.add(d["id"])
+      except Exception:
+        pass
+  print(json.dumps(list(ids)))
+except FileNotFoundError:
+  print("[]")
+PY
+}
+
+# ── Main ingest function ────────────────────────────────────────────────────
+ingest() {
   local kind="$1"; shift
-  local tmp_json="$1"; shift
-  local out_jsonl="$1"; shift
+  local bird_cmd="$1"; shift
 
-  python3 - "$kind" "$tmp_json" "$out_jsonl" "$last_run_epoch" <<'PY'
-import json,sys,email.utils
-kind=sys.argv[1]
-tmp_json=sys.argv[2]
-out_jsonl=sys.argv[3]
-last_run=int(sys.argv[4])
+  local stamp
+  stamp=$(TZ="$TZ" date +%Y-%m-%d)
+  local raw_path="$RAWDIR/${stamp}_${kind}.json"
 
-with open(tmp_json,'r') as f:
-  data=json.load(f)
+  echo "=== $kind: fetching ==="
+  local tmp_json
+  tmp_json=$(mktemp)
 
-tweets=data.get('tweets', data if isinstance(data,list) else [])
-
-def parse_created_at(s):
-  if not s:
-    return None
-  # Twitter-like: "Wed Apr 30 15:09:41 +0000 2025"
-  try:
-    dt=email.utils.parsedate_to_datetime(s)
-    return int(dt.timestamp())
-  except Exception:
-    return None
-
-new=[]
-for t in tweets:
-  if not isinstance(t,dict):
-    continue
-  ca=t.get('createdAt') or t.get('created_at')
-  ts=parse_created_at(ca)
-  if ts is None or ts >= last_run:
-    t['_ingest_kind']=kind
-    new.append(t)
-
-# Append JSONL
-with open(out_jsonl,'a') as out:
-  for t in new:
-    out.write(json.dumps(t, ensure_ascii=False))
-    out.write('\n')
-
-print(f"{kind}: appended {len(new)}")
-PY
-}
-
-run_bird() {
-  local cmd="$1"; shift
-  if ! command -v bird >/dev/null 2>&1; then
-    echo "bird not found" >&2
+  if ! run_bird "$bird_cmd" > "$tmp_json" 2>&1; then
+    echo "$kind: bird command failed" >&2
+    rm -f "$tmp_json"
     return 1
   fi
 
-  # Prefer explicit cookie tokens (avoids Linux keyring/secret-tool issues when extracting Chrome cookies).
-  # NOTE: creds.sh should be chmod 600 and never committed.
-  if [[ -f "$HOME/.config/bird/creds.sh" ]]; then
-    # shellcheck disable=SC1091
-    source "$HOME/.config/bird/creds.sh"
-  fi
+  # Archive the raw output first (before any filtering)
+  cp "$tmp_json" "$raw_path"
+  echo "$kind: raw saved -> $raw_path"
 
-  eval "$cmd"
-}
+  # Deduplicate against existing IDs
+  local existing_ids_json
+  existing_ids_json=$(load_ids "$OUTDIR/${kind}.jsonl")
+  local out_jsonl="$OUTDIR/${kind}.jsonl"
 
-stamp=$(TZ="$TZ" date +%F)
-
-# 1) Bookmarks
-TMP1=$(mktemp)
-if run_bird "bird bookmarks --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --all --max-pages 10 --json > '$TMP1'"; then
-  filter_to_jsonl "bookmarks" "$TMP1" "$OUTDIR/bookmarks.jsonl"
-else
-  echo "bookmarks: bird command failed" >&2
-fi
-rm -f "$TMP1"
-
-# 2) Likes (best-effort; some installs may not have this subcommand)
-TMP2=$(mktemp)
-if run_bird "bird likes --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --all --max-pages 10 --json > '$TMP2'"; then
-  filter_to_jsonl "likes" "$TMP2" "$OUTDIR/likes.jsonl"
-else
-  echo "likes: bird command failed (ok to ignore)" >&2
-fi
-rm -f "$TMP2"
-
-# 3) Timeline (home / "Following" chronological feed — best for "since last run")
-TMP3=$(mktemp)
-if run_bird "bird home --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --count 100 --following --json > '$TMP3'"; then
-  # home returns a flat list (not wrapped in {'tweets':[...]}), handle both shapes
-  python3 - "$TMP3" "$OUTDIR/timeline.jsonl" "$last_run_epoch" <<'PY'
+  python3 - "$kind" "$tmp_json" "$out_jsonl" "$existing_ids_json" "$last_run_epoch" <<'PY'
 import json, sys, email.utils
-path_in = sys.argv[1]
-path_out = sys.argv[2]
-last_run = int(sys.argv[3])
 
-with open(path_in) as f:
-    raw = json.load(f)
+kind        = sys.argv[1]
+tmp_json    = sys.argv[2]
+out_jsonl   = sys.argv[3]
+raw_ids_str = sys.argv[4]
+last_run    = int(sys.argv[5])
+
+existing_ids = set(json.loads(raw_ids_str))
+
+with open(tmp_json) as f:
+  raw = json.load(f)
 
 tweets = raw if isinstance(raw, list) else raw.get('tweets', [])
 
 def parse_created_at(s):
-    if not s:
-        return None
-    try:
-        return int(email.utils.parsedate_to_datetime(s).timestamp())
-    except Exception:
-        return None
+  if not s:
+    return None
+  try:
+    return int(email.utils.parsedate_to_datetime(s).timestamp())
+  except Exception:
+    return None
 
-new = 0
-with open(path_out, 'a') as out:
-    for t in tweets:
-        if not isinstance(t, dict):
-            continue
-        ts = parse_created_at(t.get('createdAt') or t.get('created_at'))
-        if ts is not None and ts >= last_run:
-            t['_ingest_kind'] = 'timeline'
-            out.write(json.dumps(t, ensure_ascii=False) + '\n')
-            new += 1
+new_count = 0
+skipped_dup = 0
 
-print(f"timeline: appended {new}")
+with open(out_jsonl, 'a') as out:
+  for t in tweets:
+    if not isinstance(t, dict):
+      continue
+    tid = t.get('id')
+    if not tid:
+      continue
+    # Skip already-seen IDs (dedup across runs)
+    if tid in existing_ids:
+      skipped_dup += 1
+      continue
+    ts = parse_created_at(t.get('createdAt') or t.get('created_at'))
+    if ts is None or ts >= last_run:
+      t['_ingest_kind'] = kind
+      out.write(json.dumps(t, ensure_ascii=False) + '\n')
+      existing_ids.add(tid)   # prevent within-run duplicates
+      new_count += 1
+
+print(f"{kind}: new={new_count} skipped_dup={skipped_dup}")
 PY
-else
-  echo "timeline: bird home failed" >&2
-fi
-rm -f "$TMP3"
 
-# 4) Optional: reindex with gno (fast enough for ~/clawd scale)
+  rm -f "$tmp_json"
+}
+
+run_bird() {
+  local cmd="$1"
+  if ! command -v bird >/dev/null 2>&1; then
+    echo "bird not found" >&2
+    return 1
+  fi
+  if [[ -f "$HOME/.config/bird/creds.sh" ]]; then
+    # shellcheck disable=SC1091
+    source "$HOME/.config/bird/creds.sh"
+  fi
+  eval "$cmd"
+}
+
+# ── Run ────────────────────────────────────────────────────────────────────
+ingest bookmarks "bird bookmarks --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --all --max-pages 10 --json"
+ingest likes     "bird likes     --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --all --max-pages 10 --json"
+ingest timeline  "bird home      --auth-token \"${AUTH_TOKEN:-}\" --ct0 \"${CT0:-}\" --count 100 --following --json"
+
+# ── Optional reindex ────────────────────────────────────────────────────────
 if command -v gno >/dev/null 2>&1; then
   (cd "$WORKDIR" && gno index --yes) || echo "gno index failed (ok to ignore)" >&2
 fi
 
 write_state
-
-# Simple daily heartbeat file
-printf "%s\t%s\n" "$stamp" "$now_epoch" >> "$OUTDIR/runs.tsv"
+printf "%s\t%s\n" "$(TZ="$TZ" date +%F)" "$now_epoch" >> "$OUTDIR/runs.tsv"
+echo "=== done ==="

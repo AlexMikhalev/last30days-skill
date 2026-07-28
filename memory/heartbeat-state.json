@@ -1,10 +1,17 @@
 {
   "lastChecks": {
-    "email": null,
-    "calendar": null,
-    "weather": null,
-    "tasks": 1777722780,
-    "whatsapp": 1777722780
+    "tasks": 1752166200,
+    "gateway": 1752166200,
+    "email": 1783941038,
+    "calendar": 1783941038,
+    "weather": 1751786700
   },
-  "note": "gogcli 0.9.0 - gmail/calendar auth not persisting (needs re-auth). No urgent items found."
+  "notes": {
+    "heartbeat_0709_1410": "Thursday 14:10 BST. All tasks done. Gateway connected. No action needed.",
+    "heartbeat_0710_0310": "Friday 03:10 BST. All 3 tasks in primitives/tasks/ are done. Gateway connected. Nothing needs attention.",
+    "heartbeat_0710_0910": "Friday 09:10 BST. All 3 tasks still done. Gateway connected. Nothing needs attention.",
+    "heartbeat_0710_1210": "Friday 12:10 BST. 3/3 tasks done. Gateway connected. No action needed.",
+    "heartbeat_0711_1310": "Saturday 13:10 BST. All 3 tasks done. Gateway connected. No action needed.",
+    "heartbeat_0713_1210": "Monday 12:10 BST. gog auth still missing (53+ days). No action taken on email/calendar. Gateway connected."
+  }
 }

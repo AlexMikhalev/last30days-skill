@@ -102,3 +102,4 @@ assistant: Here's what I found — features you have available but may not be fu
 - Extract a frame from a video?
 - Chat with Grok?
 - Something else from ClaWHub?
+<!-- consolidated -->

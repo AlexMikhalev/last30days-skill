@@ -56,3 +56,12 @@ Add whatever helps you do your job. This is your cheat sheet.
 - **API Key:** `cnwy_k_fJ7-m72Dm3t23VSPn8u_lkOSC9aAZMVN`
 - **Wallet:** `0x5B962e41D4D1e6974BDFB8B61090cdAF935ec7Bf`
 - **Installed:** via `npx conway-terminal`
+
+## Gitea (Kairo Identity)
+- **Instance:** https://git.terraphim.cloud
+- **User:** kairo
+- **Access:** HTTPS only (no SSH configured)
+- **Token:** stored in `~/.clawdbot/credentials/gitea-kairo.env` (env: `GITEA_TOKEN`)
+- **Auth:** `https://kairo:<TOKEN>@git.terraphim.cloud` for git operations
+- **Scopes:** write:repository, read:user, read:issue (repo creation requires site admin)
+- **CLI:** `~/.local/bin/gitea-robot` (set `GITEA_URL` + `GITEA_TOKEN` env vars)
