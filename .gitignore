@@ -27,3 +27,4 @@ node_modules/
 *.html
 /test-task/
 /1agents.sh
+openclaw-auto-dream/
