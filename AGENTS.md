@@ -117,8 +117,10 @@ Don't write code yourself unless it's a trivial edit or you're explicitly asked.
 **🎯 Agent Spin Rule (ALWAYS FOLLOW):**
 | Time (GMT) | Model | Cost |
 |------------|-------|------|
-| 00:00-11:59 | OpenCode Zen (free) | Free |
+| 00:00-11:59 | opencode subscription chain (kimi-k3 → minimax-m3 → glm-5.2) | Flat subs |
 | 12:00-23:59 | Claude / Codex | Paid |
+
+**opencode Zen is FORBIDDEN** (Alex 2026-08-03) — provider disabled in opencode.json; only subscription-keyed custom providers.
 
 **ALWAYS check time before spinning agents.**
 
