@@ -1,6 +1,13 @@
 # MEMORY (Long-term)
-_Last updated: 2026-07-24_
+_Last updated: 2026-10-26_
 _Migrated from OpenClaw to Hermes on 2026-07-24. Terminology updated: `openclaw`/`clawdbot` commands and paths now refer to their Hermes equivalents (`hermes`, `~/.hermes`)._
+
+## 2026-10-26
+- **Performance gates on shared hosts: measure PAIRED, never against a stored baseline.** A stored baseline compared against a later candidate measured the HOST, not the code — false `PASS` on a 38% "improvement", false `REGRESSION` on unchanged code. Interleave baseline and candidate in the same time window and compare the pair; host load then cancels. Rule for all perf gates: fail closed on `INDETERMINATE`, and never let a proof arm count unless it proved its perturbation landed.
+- **Private Gitea reads return 404, not 401.** A 404 cannot distinguish "unauthorised" from "absent" — and a token lacking scope gets the same 404. The `channel_sync` probe already supports `GITEA_TOKEN`; the defect was CI wiring, and the gate used `FakeFetcher` so it could never see it.
+- **Ask the forge, not the filesystem.** `find` over the home directory reported the grok-build/pi-rust forks absent; both are on Gitea.
+- **Agent Mission Control UI**: Lit/Vite/TypeScript + Playwright, 17 browser assertions, in `terraphim/agent-secrets-monitor` (`ui/`), uncommitted, no PR. `wasm-pack` 0.15.0 came from the Gitea mirror; Binaryen 117 needs `--enable-bulk-memory`.
+- **Handover**: `cto-executive-system/handovers/2026-10-26-fleet-baseline-research-and-performance-gate.md`. Research doc at Gitea issue #197 (comment 103046), third revision, awaiting a third gate.
 
 ## 2026-07-24
 - **OpenClaw → Hermes migration finalized**: Identity (Kairo, IDENTITY.md → `~/.hermes/`) and notes fully in my own store. SOUL.md updated (Terra → Kairo). This file deduplicated and made Hermes-native. Old `~/.openclaw/` left untouched as archive; migration overflow backups in `~/.hermes/migration/openclaw/`.
